@@ -17,7 +17,7 @@ import org.apache.velocity.*;
 import org.apache.velocity.app.VelocityEngine;
 
 
-public class temp {
+public class EntryPoint {
 	
 	 public static void main(String[] args) {
 		 
