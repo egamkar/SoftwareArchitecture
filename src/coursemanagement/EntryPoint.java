@@ -37,25 +37,57 @@ class CMSFileReader {
 
 public class EntryPoint {
 	
-	 public static void main(String[] args) {
-		 
-		 stop();
-		 port(9000);
-		 get("/initialize",loadDB);
-		 get("/getStudent/:id",getStudentById);
+    public static void main(String[] args) {
 
-		 CMSFileReader cms = new CMSFileReader();
+        stop();
+        port(9000);
+        get("/initialize",loadDB);
+        get("/getStudent/:id",getStudentById);
 
-		 get("/", (req, res) -> cms.readFile("index.html"));
-		 get("/index.html", (req, res) -> cms.readFile("index.html"));
+        /* ===== Read index file ===== */
+        CMSFileReader cms = new CMSFileReader();
+        get("/", (req, res) -> cms.readFile("index.html"));
+        get("/index.html", (req, res) -> cms.readFile("index.html"));
 
-		 get("/login_student/:id", (req, res) -> "Not implemented yet");
-		 get("/login_instructor/:id", (req, res) -> "Not implemented yet");
-		 get("/login_admin/:id", (req, res) -> "Not implemented yet");
+        /* ===== Admin Handlers ===== */
+        get("/loginAdmin/:id", (req, res) -> {
+            // TODO: Call Login here
+            return "Login Successful";
+        });
+        get("/loadData/:path", (req, res) -> {
+            // TODO: Load data here
+            return "Data Import Successful";
+        });
+        post("/addCourse", (req, res) -> {
+            // TODO: Add a new Course to the database
+            // NOTE:  req.body() will return {"id":"12","desc":"Computer Programming"}
+            System.out.println(req.body());
+            return "Add Course Successful";
+        });
+        post("/addInstructor", (req, res) -> {
+            // TODO: Add a new Instructor to the database
+            // NOTE:  req.body() will return {"id":"12","name":"Mark Moss"}
+            System.out.println(req.body());
+            return "Add Instructor Successful";
+        });
+        post("/addStudent", (req, res) -> {
+            // TODO: Add a new Student to the database
+            // NOTE:  req.body() will return {"id":"5","name":"Rohit Pitke"}
+            System.out.println(req.body());
+            return "Add Student Successful";
+        });
 
-		 get("/import_data/:path", (req, res) -> "Data Import Successful");
-		 get("/add_course", (req, res) -> "Add Course Successful");
-		 get("/add_instructor", (req, res) -> "Add Instructor Successful");
+        /* ===== Student Handlers ===== */
+        get("/loginStudent/:id", (req, res) -> {
+            // TODO:
+            return "Not implemented yet";
+        });
+
+        /* ===== Instructor Handlers ===== */
+        get("/loginInstructor/:id", (req, res) -> {
+            // TODO:
+            return "Not implemented yet";
+        });
 
 
 

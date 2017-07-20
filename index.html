@@ -98,20 +98,9 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         $scope.content_page = {"title":"Admin Page","method":"getAdminPage"};
     };
 
-	/* ===== View Menus ===== */
-    $scope.getStudentPage = function() {
-        var path = "/login_student/" + document.getElementById("login_id").value;
-
-        $http({method : "GET", url : path})
-            .then(function mySuccess(response) {
-            	document.getElementById('message_this').innerHTML = "";
-				$scope.showView("student_view");
-            }, function myError(response) {
-            	document.getElementById('message_this').innerHTML = response.statusText;
-        	});
-    };
+	/* ===== Instructor Methods ===== */
     $scope.getInstructorPage = function() {
-        var path = "/login_instructor/" + document.getElementById("login_id").value;
+        var path = "/loginInstructor/" + document.getElementById("login_id").value;
 
         $http({method : "GET", url : path})
             .then(function mySuccess(response) {
@@ -121,19 +110,21 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
             	document.getElementById('message_this').innerHTML = response.statusText;
         	});
     };
-    $scope.getAdminPage = function() {
-        var path = "/login_admin/" + document.getElementById("login_id").value;
+
+    
+	/* ===== Student Functions ===== */
+    /* Handle Student Login */
+    $scope.getStudentPage = function() {
+        var path = "/loginStudent/" + document.getElementById("login_id").value;
 
         $http({method : "GET", url : path})
             .then(function mySuccess(response) {
             	document.getElementById('message_this').innerHTML = "";
-				$scope.showView("admin_view");
+				$scope.showView("student_view");
             }, function myError(response) {
             	document.getElementById('message_this').innerHTML = response.statusText;
-        	});    
+        	});
     };
-    
-	/* ===== Student Functions ===== */
 	/* Register for Courses */
     $scope.aLoadData = function() {
         document.getElementById('action_section').innerHTML = "";
@@ -156,6 +147,19 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
     };
 
 	/* ===== Admin Functions ===== */
+    /* Admin Login */
+    $scope.getAdminPage = function() {
+        var path = "/loginAdmin/" + document.getElementById("login_id").value;
+
+        $http({method : "GET", url : path})
+            .then(function mySuccess(response) {
+            	document.getElementById('message_this').innerHTML = response.data;
+				$scope.showView("admin_view");
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});    
+    };
+
 	/* Load Data from external CSV files */
     $scope.aLoadData = function() {
         document.getElementById('action_section').innerHTML = "";
@@ -167,7 +171,7 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         angular.element(document.getElementById('action_section')).append(temp);
     };
     $scope.aCallLoadData = function() {
-        var path = "/import_data/" + document.getElementById('aPath').value;
+        var path = "/loadData/" + document.getElementById('aPath').value;
 
         $http({method : "GET", url : path})
             .then(function mySuccess(response) {
@@ -189,14 +193,24 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         angular.element(document.getElementById('action_section')).append(temp);
     };
     $scope.aCallAddCourse = function() {
-        var path = "/add_course";
+        var req = {
+            method: 'POST',
+            url: '/addCourse',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+            },
+            data: { 
+                id: document.getElementById("aId").value,
+                desc: document.getElementById("aDesc").value
+            }
+        };
 
-        $http({method : "GET", url : path})
-            .then(function mySuccess(response) {
-				document.getElementById('message_this').innerHTML = response.data;
-            }, function myError(response) {
-            	document.getElementById('message_this').innerHTML = response.statusText;
-        	});
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
     };
     
 	/* Add Instructor */
@@ -205,20 +219,30 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         document.getElementById('message_this').innerHTML = "";
         var x  = `<h3>Add Instructor</h3>
         	<form>Id: <input type="text" id="aId">
-        	Name: <input type="text" id="aDesc">
+        	Name: <input type="text" id="aName">
             <button ng-click="aCallAddInstructor(); return;">Add</button></form>`;
         var temp = $compile(x)($scope);
         angular.element(document.getElementById('action_section')).append(temp);
     };
     $scope.aCallAddInstructor = function() {
-        var path = "/add_instructor";
+        var req = {
+            method: 'POST',
+            url: '/addInstructor',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+            },
+            data: { 
+                id: document.getElementById("aId").value,
+                name: document.getElementById("aName").value
+            }
+        };
 
-        $http({method : "GET", url : path})
-            .then(function mySuccess(response) {
-				document.getElementById('message_this').innerHTML = response.data;
-            }, function myError(response) {
-            	document.getElementById('message_this').innerHTML = response.statusText;
-        	});
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
     };
    
 	/* Add Student */
@@ -227,20 +251,29 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         document.getElementById('message_this').innerHTML = "";
         var x  = `<h3>Add Student</h3>
         	<form>Id: <input type="text" id="aId">
-        	Name: <input type="text" id="aDesc">
-            <button ng-click="aCallStudent(); return;">Add</button></form>`;
+        	Name: <input type="text" id="aName">
+            <button ng-click="aCallAddStudent(); return;">Add</button></form>`;
         var temp = $compile(x)($scope);
         angular.element(document.getElementById('action_section')).append(temp);
     };
     $scope.aCallAddStudent = function() {
-        var path = "/add_student";
-
-        $http({method : "GET", url : path})
-            .then(function mySuccess(response) {
-				document.getElementById('message_this').innerHTML = response.data;
-            }, function myError(response) {
-            	document.getElementById('message_this').innerHTML = response.statusText;
-        	});
+        var req = {
+            method: 'POST',
+            url: '/addStudent',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+            },
+            data: { 
+                id: document.getElementById("aId").value,
+                name: document.getElementById("aName").value
+            }
+        };
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
     };
     
     /* ===== App init =====*/
