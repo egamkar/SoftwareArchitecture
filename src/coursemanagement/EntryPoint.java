@@ -24,8 +24,22 @@ public class EntryPoint {
 		 stop();
 		 port(9000);
 		 get("/initialize",loadDB);
+		 get("/getStudent/:id",getStudentById);
 }
 	 
+	 
+	 
+	 public static Route getStudentById = (Request req,Response resp)->{
+		 StudentDAO studdao = new StudentDAOimpl();
+		 Student stud = studdao.returnStudentInfo(Integer.parseInt(req.params(":id")));
+		 HashMap<String,String>model = new HashMap<>();
+		 model.put("name", stud.name);
+		 return strictVelocityEngine().render(new ModelAndView(model,"student.vm")); 
+
+		 
+		 
+		 
+	 };
 	 
 	 
 	 public static Route loadDB = (Request req, Response resp)->{
