@@ -16,6 +16,24 @@ import java.util.HashMap;
 import org.apache.velocity.*;
 import org.apache.velocity.app.VelocityEngine;
 
+class CMSFileReader {
+	public String readFile(String fileName) {
+		String out = "";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(fileName));
+
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				out = out + line;
+			}
+			reader.close();
+		} catch (IOException e) {
+			System.out.println("Exception: " + e);
+		}
+
+		return out;
+	}
+}
 
 public class EntryPoint {
 	
@@ -25,7 +43,23 @@ public class EntryPoint {
 		 port(9000);
 		 get("/initialize",loadDB);
 		 get("/getStudent/:id",getStudentById);
-}
+
+		 CMSFileReader cms = new CMSFileReader();
+
+		 get("/", (req, res) -> cms.readFile("index.html"));
+		 get("/index.html", (req, res) -> cms.readFile("index.html"));
+
+		 get("/login_student/:id", (req, res) -> "Not implemented yet");
+		 get("/login_instructor/:id", (req, res) -> "Not implemented yet");
+		 get("/login_admin/:id", (req, res) -> "Not implemented yet");
+
+		 get("/import_data/:path", (req, res) -> "Data Import Successful");
+		 get("/add_course", (req, res) -> "Add Course Successful");
+		 get("/add_instructor", (req, res) -> "Add Instructor Successful");
+
+
+
+	}
 	 
 	 
 	 
@@ -52,7 +86,7 @@ public class EntryPoint {
 		 HashMap<String,String>model = new HashMap<>();
 		 model.put("name", "test");
 		return strictVelocityEngine().render(new ModelAndView(model,"helloworld.vm")); 
-};
+	};
 	 
 	 
 	 private static String print(){
