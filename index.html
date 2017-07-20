@@ -15,7 +15,7 @@
     <hr>
     <div>
         <h2>{{content_page.title}}</h2>
-        <div id="message_this"></div>
+        <h3 id="message_this"></h3>
         <form>
             id: <input type="text" id="login_id">  <button ng-click="this[content_page.method]()">Login</button>
         </form>
@@ -50,6 +50,7 @@
             <button ng-click="aStartTerm()">Start Term</button>
             <button ng-click="aAdvanceTerm()">Advance Term</button>
             <button ng-click="aAddPrereqs()">Add Pre-requisites</button>
+            <button ng-click="aWekaReport()">Display Weka Report</button>
         </div>
         <hr>
     </div>
@@ -323,6 +324,18 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
 	/* Advance Term */
     $scope.aAdvanceTerm = function() {
         var path = "/advanceTerm";
+
+        $http({method : "GET", url : path})
+            .then(function mySuccess(response) {
+				document.getElementById('message_this').innerHTML = response.data;
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});
+    };
+
+	/* Advance Term */
+    $scope.aWekaReport = function() {
+        var path = "/reportWeka";
 
         $http({method : "GET", url : path})
             .then(function mySuccess(response) {

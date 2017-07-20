@@ -55,10 +55,10 @@ public class EntryPoint {
 
         /* ===== Course Handlers ===== */
         get("/getCourses", (req, res) -> {
-            // TODO: Call Login here
-            String test_data = "[{'id':'22','desc':'Computer Programming'}, " +
+            // TODO: Get a list of courses in the following format
+            String test_data = "\"[{'id':'22','desc':'Computer Programming'}, " +
                     "{'id':'23','desc':'Computer Networks'}, " +
-                    "{'id':'24','desc':'Computer Architecture'}]";
+                    "{'id':'24','desc':'Computer Architecture'}]\"";
             return test_data;
         });
 
@@ -119,13 +119,17 @@ public class EntryPoint {
              */
             System.out.println("Prereq called");
             /* Comment this after code is completed */
-            String test_data = "[{'id':'22','desc':'Computer Programming','prereq':'yes'}, " +
+            String test_data = "\"[{'id':'22','desc':'Computer Programming','prereq':'yes'}, " +
                     "{'id':'23','desc':'Computer Networks','prereq':'no'}, " +
-                    "{'id':'24','desc':'Computer Architecture','prereq':'no'}]";
+                    "{'id':'24','desc':'Computer Architecture','prereq':'no'}]\"";
             System.out.println(test_data);
-            return "Hello World";
+            return test_data;
         });
-
+        get("/reportWeka", (req, res) -> {
+            // TODO: Need guidance from Jowanza as to what will happen here ...
+            System.out.println("Weka Report");
+            return "Success";
+        });
 
         /* ===== Student Handlers ===== */
         get("/loginStudent/:id", (req, res) -> {
