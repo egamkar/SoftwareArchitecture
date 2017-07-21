@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<body>
+
+<div ng-app="cmsApp" ng-controller="cmsCtrl">
+
+    <h1>Course Management System</h1>
+    <p>By Narm, Rohit, Jowanza, Gautam</p>
+    <div id="cmd_menu">
+        <button ng-click="admin_page()" id="admin_page">Admins</button>
+        <button ng-click="instructor_page()" id="instructor_page">Instructors</button>
+        <button ng-click="student_page()" id="student_page">Students</button>
+    </div>
+    <hr>
+    <div>
+        <h2>{{content_page.title}}</h2>
+        <h3 id="message_this"></h3>
+        <form>
+            id: <input type="text" id="login_id">  <button ng-click="this[content_page.method]()">Login</button>
+        </form>
+    </div>
+    <hr>
+    <div id="student_view">
+        <div>
+            Select Action:
+            <button ng-click="sRegisterCourses()">Register Course</button>
+            <button ng-click="sViewCourses()">View Courses</button>
+            <button ng-click="sViewGrades()">View Grades</button>
+        </div>
+        <hr>
+    </div>
+    <div id="instructor_view">
+        <div>
+            Select Action:
+            <button ng-click="iTeachCourse()">Teach Course</button>
+            <button ng-click="iAssignGrade()">Assign Grade</button>
+        </div>
+        <hr>
+    </div>
+    <div id="admin_view">
+        <div>
+            Select Action:
+            <button ng-click="aLoadData()">Load Data</button>
+            <button ng-click="aAddCourse()">Add Course</button>
+            <button ng-click="aAddInstructor()">Add Instructor</button>
+            <button ng-click="aAddStudent()">Add Student</button>
+            <button ng-click="aHireInstructor()">Hire Instructor</button>
+            <button ng-click="aLeaveInstructor()">Leave Instructor</button>
+            <button ng-click="aStartTerm()">Start Term</button>
+            <button ng-click="aAdvanceTerm()">Advance Term</button>
+            <button ng-click="aAddPrereqs()">Add Pre-requisites</button>
+            <button ng-click="aWekaReport()">Display Weka Report</button>
+        </div>
+        <hr>
+    </div>
+    <div id="action_section"></div>
+</div>
+
+<script>
+var app = angular.module('cmsApp', []);
+
+app.controller('cmsCtrl', function($scope, $compile, $http) {
+
+	/* ===== Helper Routines ===== */
+	$scope.clearAll = function() {
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        document.getElementById('student_view').style.display = 'none';
+        document.getElementById('instructor_view').style.display = 'none';
+        document.getElementById('admin_view').style.display = 'none';
+    };
+    $scope.pageDisable = function(page) {
+        document.getElementById("student_page").disabled = false;
+        document.getElementById("instructor_page").disabled = false;
+        document.getElementById("admin_page").disabled = false;        
+        document.getElementById(page).disabled = true;
+    };
+	$scope.showView = function(view) {
+        document.getElementById('student_view').style.display = 'none';
+        document.getElementById('instructor_view').style.display = 'none';
+        document.getElementById('admin_view').style.display = 'none';        		
+        document.getElementById(view).style.display = 'block';
+	};
+	
+	/* ===== Main Menu Items ===== */
+    $scope.student_page = function() {
+		$scope.clearAll();
+		$scope.pageDisable("student_page");
+        $scope.content_page = {"title":"Student Page","method":"getStudentPage"};
+    };
+    $scope.instructor_page = function() {
+		$scope.clearAll();
+		$scope.pageDisable("instructor_page");
+        $scope.content_page = {"title":"Instructor Page","method":"getInstructorPage"};
+    };
+    $scope.admin_page = function() {
+		$scope.clearAll();
+		$scope.pageDisable("admin_page");
+        $scope.content_page = {"title":"Admin Page","method":"getAdminPage"};
+    };
+
+	/* ===== Instructor Methods ===== */
+    $scope.getInstructorPage = function() {
+        var path = "/loginInstructor/" + document.getElementById("login_id").value;
+
+        $http({method : "GET", url : path})
+            .then(function mySuccess(response) {
+            	document.getElementById('message_this').innerHTML = "";
+				$scope.showView("instructor_view");
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});
+    };
+
+    
+	/* ===== Student Functions ===== */
+    /* Handle Student Login */
+    $scope.getStudentPage = function() {
+        var path = "/loginStudent/" + document.getElementById("login_id").value;
+
+        $http({method : "GET", url : path})
+            .then(function mySuccess(response) {
+            	document.getElementById('message_this').innerHTML = "";
+				$scope.showView("student_view");
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});
+    };
+
+	/* ===== Admin Functions ===== */
+    /* Admin Login */
+    $scope.getAdminPage = function() {
+        var path = "/loginAdmin/" + document.getElementById("login_id").value;
+
+        $http({method : "GET", url : path})
+            .then(function mySuccess(response) {
+            	document.getElementById('message_this').innerHTML = response.data;
+				$scope.showView("admin_view");
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});    
+    };
+
+	/* Load Data from external CSV files */
+    $scope.aLoadData = function() {
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        var x  = `<h3>Load Data From External Files</h3>
+        	<form>Path: <input type="text" id="aPath">
+            <button ng-click="aCallLoadData(); return;">Load Data</button></form>`;
+        var temp = $compile(x)($scope);
+        angular.element(document.getElementById('action_section')).append(temp);
+    };
+    $scope.aCallLoadData = function() {
+        var path = "/loadData/" + document.getElementById('aPath').value;
+
+        $http({method : "GET", url : path})
+            .then(function mySuccess(response) {
+				document.getElementById('message_this').innerHTML = response.data;
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});
+    };
+
+	/* Add Course */
+    $scope.aAddCourse = function() {
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        var x  = `<h3>Add Course</h3>
+        	<form>Description: <input type="text" id="aDesc">
+            <button ng-click="aCallAddCourse(); return;">Add</button></form>`;
+        var temp = $compile(x)($scope);
+        angular.element(document.getElementById('action_section')).append(temp);
+    };
+    $scope.aCallAddCourse = function() {
+        var req = { method: 'POST', url: '/addCourse',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+            },
+            data: { 
+                desc: document.getElementById("aDesc").value
+            }
+        };
+
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
+    };
+    
+	/* Add Instructor */
+    $scope.aAddInstructor = function() {
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        var x  = `<h3>Add Instructor</h3>
+        	<form>Name: <input type="text" id="aName">
+            <button ng-click="aCallAddInstructor(); return;">Add</button></form>`;
+        var temp = $compile(x)($scope);
+        angular.element(document.getElementById('action_section')).append(temp);
+    };
+    $scope.aCallAddInstructor = function() {
+        var req = {
+            method: 'POST',
+            url: '/addInstructor',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+            },
+            data: { 
+                name: document.getElementById("aName").value
+            }
+        };
+
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
+    };
+   
+	/* Add Student */
+    $scope.aAddStudent = function() {
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        var x  = `<h3>Add Student</h3>
+        	<form>Name: <input type="text" id="aName">
+            <button ng-click="aCallAddStudent(); return;">Add</button></form>`;
+        var temp = $compile(x)($scope);
+        angular.element(document.getElementById('action_section')).append(temp);
+    };
+    $scope.aCallAddStudent = function() {
+        var req = { method: 'POST', url: '/addStudent',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' },
+            data: { 
+                name: document.getElementById("aName").value
+            }
+        };
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
+    };
+    
+	/* Hire Instructor */
+    $scope.aHireInstructor = function() {
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        var x  = `<h3>Hire Instructor</h3>
+        	<form>Id: <input type="text" id="aId">
+            <button ng-click="aCallHireInstructor(); return;">Hire</button></form>`;
+        var temp = $compile(x)($scope);
+        angular.element(document.getElementById('action_section')).append(temp);
+    };
+    $scope.aCallHireInstructor = function() {
+        var req = { method: 'POST', url: '/hireInstructor',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' },
+            data: { 
+                id: document.getElementById("aId").value
+            }
+        };
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
+    };
+
+	/* Leave Instructor */
+    $scope.aLeaveInstructor = function() {
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        var x  = `<h3>Leave Instructor</h3>
+        	<form>Id: <input type="text" id="aId">
+            <button ng-click="aCallLeaveInstructor(); return;">Leave</button></form>`;
+        var temp = $compile(x)($scope);
+        angular.element(document.getElementById('action_section')).append(temp);
+    };
+    $scope.aCallLeaveInstructor = function() {
+        var req = { method: 'POST', url: '/leaveInstructor',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' },
+            data: { 
+                id: document.getElementById("aId").value
+            }
+        };
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
+    };
+
+	/* Start Term */
+    $scope.aStartTerm = function() {
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        var x  = `<h3>Start Term</h3>
+        	<form>Term: <input type="text" id="aTerm"> Example: Fall-2017
+            <button ng-click="aCallStartTerm(); return;">Start</button></form>`;
+        var temp = $compile(x)($scope);
+        angular.element(document.getElementById('action_section')).append(temp);
+    };
+    $scope.aCallStartTerm = function() {
+        var req = { method: 'POST', url: '/startTerm',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' },
+            data: { 
+                term: document.getElementById("aTerm").value
+            }
+        };
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
+    };
+
+	/* Advance Term */
+    $scope.aAdvanceTerm = function() {
+        var path = "/advanceTerm";
+
+        $http({method : "GET", url : path})
+            .then(function mySuccess(response) {
+				document.getElementById('message_this').innerHTML = response.data;
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});
+    };
+
+	/* Advance Term */
+    $scope.aWekaReport = function() {
+        var path = "/reportWeka";
+
+        $http({method : "GET", url : path})
+            .then(function mySuccess(response) {
+				document.getElementById('message_this').innerHTML = response.data;
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});
+    };
+
+	/* Add Prereqs */
+    $scope.aAddPrereqs = function() {
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        var x  = `<h3>Add Pre requisites</h3>
+        	<form>Course Id: <input type="text" id="acId">
+            <button ng-click="aCallAddPrereqs(); return;">Get Courses</button></form>`;
+        var temp = $compile(x)($scope);
+        angular.element(document.getElementById('action_section')).append(temp);
+    };
+    $scope.aCallAddPrereqs = function() {
+        var path = "/coursesForPrereqs/" + document.getElementById('acId').value;
+        var prereqCourses;
+        $http({method : "GET", url : path})
+            .then(function mySuccess(response) {
+				document.getElementById('message_this').innerHTML = response.data;
+                prereqCourses = response.data;
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+                return;
+        	});
+    };
+    /* ===== App init =====*/
+    var app_init = function () {
+        document.getElementById("admin_page").disabled = true;
+        $scope.content_page = {"title":"Admin Page","method":"getAdminPage"};
+
+        document.getElementById('student_view').style.display = 'none';
+        document.getElementById('instructor_view').style.display = 'none';
+        document.getElementById('admin_view').style.display = 'none';
+    };
+    app_init();
+});
+</script>
+
+</body>
+</html>
