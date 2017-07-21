@@ -25,9 +25,28 @@ public class EntryPoint {
 		 port(9000);
 		 get("/initialize",loadDB);
 		 get("/getStudent/:id",getStudentById);
+		 get("/getRecord/:id",getStudentRecord);
+		 post("/assignGrade",enterAcademicRecord);
+		 StudentDAO studdao = new StudentDAOimpl();
+		 
 }
 	 
 	 
+	 
+	 public static Route enterAcademicRecord = (Request req, Response resp)->{
+		int studentuuid = Integer.parseInt(req.queryParams("studId"));
+		int instuuid = Integer.parseInt(req.queryParams("instID"));
+		int courseuuid = Integer.parseInt(req.queryParams("courseId"));
+		String grade = req.queryParams("grade");
+		String termyear = "Spring_2018";
+		String comment = req.queryParams("comment")!=null?req.queryParams("comment"):null; 
+		StudentDAO studdao = new StudentDAOimpl();
+		studdao.enterAcademicRecord(studentuuid, courseuuid, grade, instuuid, termyear, comment);
+		 HashMap<String,String>model = new HashMap<>();
+		 model.put("name", "Entered");
+		 return strictVelocityEngine().render(new ModelAndView(model,"student.vm"));  
+		 
+	 };
 	 
 	 public static Route getStudentById = (Request req,Response resp)->{
 		 StudentDAO studdao = new StudentDAOimpl();
@@ -35,11 +54,18 @@ public class EntryPoint {
 		 HashMap<String,String>model = new HashMap<>();
 		 model.put("name", stud.name);
 		 return strictVelocityEngine().render(new ModelAndView(model,"student.vm")); 
-
-		 
-		 
-		 
-	 };
+	};
+	
+	public static Route getStudentRecord = (Request req, Response resp)->{
+		 StudentDAO studdao = new StudentDAOimpl();
+		
+		 ArrayList<academicRecord> record = studdao.returnRecordForStudent(Integer.parseInt(req.params(":id")));
+		 HashMap<String,String>model = new HashMap<>();
+		 model.put("name", record.get(0).comment);
+		 return strictVelocityEngine().render(new ModelAndView(model,"student.vm")); 
+		
+		
+	};
 	 
 	 
 	 public static Route loadDB = (Request req, Response resp)->{
