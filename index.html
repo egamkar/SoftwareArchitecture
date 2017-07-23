@@ -164,13 +164,53 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
             }
         };
         $http(req)
-        .then(function(response){
+        .then(function(response) {
             document.getElementById('message_this').innerHTML = response.data;
         }, function(){
             document.getElementById('message_this').innerHTML = response.statusText;
         });
     };
-    
+
+    $scope.iAssignGrade = function() {
+        var gr = `<h3>Assign Grade</h3>
+            <form>
+            Course Id: <input type="text" id="grcid" required>
+            Student Id: <input type="text" id="grsid" required>
+            Term: <Input type="text" id="grterm" required>
+            Grade (A - F): <input type=text" id="grade" required>
+            Comment: <input type="text" id="grcomment">
+            <button ng-click="iSetGrade(); return;">Set Grade</button>
+            </form>`;
+
+            var temp = $compile(gr)($scope);
+            angular.element(document.getElementById('action_section')).append(temp);
+    };
+    $scope.iSetGrade = function() {
+        var arg1 = document.getElementById("grcid").value;
+        var arg2 = document.getElementById("grsid").value;
+        var arg3 = document.getElementById("grterm").value;
+        var arg4 = document.getElementById("grade").value;
+        var arg5 = document.getElementById("grcomment").value;
+        
+        var req = { method: 'POST', url: '/assignGrade',
+            headers: { 'Content-Type': 'application/json;' },
+            data: { 
+                grcid: arg1,
+                grsid: arg2,
+                grterm: arg3,
+                grade: arg4,
+                grcomment: arg5
+            }
+        };
+        console.log(req);
+        $http(req)
+        .then(function(response) {
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(response) {
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
+    };
+  
 	/* ===== Student Functions ===== */
     /* Handle Student Login */
     $scope.getStudentPage = function() {
