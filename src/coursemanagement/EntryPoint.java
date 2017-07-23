@@ -50,7 +50,7 @@ public class EntryPoint {
 
 		stop();
 		port(9000);
-		setCurrentTermWithYear();
+	//	setCurrentTermWithYear();
 		get("/startsim/:year", startSim);
 		get("/nextTerm", nextTerm);
 		get("/initialize", loadDB);
@@ -88,7 +88,7 @@ public class EntryPoint {
 		
 		 /* ===== Read index file ===== */
         coursemanagement.CMSFileReader cms = new coursemanagement.CMSFileReader();
-        WekaOperator weka = new WekaOperator();
+      //  WekaOperator weka = new WekaOperator();
         get("/", (req, res) -> {
             return cms.readFile("index.html");
         });
@@ -205,7 +205,7 @@ public class EntryPoint {
         });
 
         get("/wekaAnalysis", (req, res) -> {
-            weka.runClassification(weka.queryWeka(""));
+    //        weka.runClassification(weka.queryWeka(""));
             System.out.println("Weka Report");
             return "Success";
         });
@@ -224,7 +224,7 @@ public class EntryPoint {
         });
 
 
-        StudentDAO studdao = new StudentDAOimpl();
+     //   StudentDAO studdao = new StudentDAOimpl();
 
 
 		
