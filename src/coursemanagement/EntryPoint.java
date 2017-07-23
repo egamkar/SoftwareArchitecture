@@ -63,9 +63,9 @@ public class EntryPoint {
 	        /* ===== Course Handlers ===== */
         get("/getCourses", (req, res) -> {
             // TODO: Get a list of courses in the following format
-            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\",\"prereq\":\"yes\"}," +
-                    "{\"id\":\"23\",\"desc\":\"Computer Networks\",\"prereq\":\"no\"}," +
-                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\",\"prereq\":\"no\"}]";
+            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\"}," +
+                    "{\"id\":\"23\",\"desc\":\"Computer Networks\"}," +
+                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\"}]";
             return test_data;
         });
 
@@ -138,7 +138,28 @@ public class EntryPoint {
             System.out.println(req.body());
             return "Set Pre-requisites";
         });
-        
+
+        /* ===== Instructor Handlers ===== */
+        get("/coursesForTeaching/:instructorid", (req, res) -> {
+	            /* TODO:  need a list of courses in the following format.
+	                - The list should not contain only the courses the Instructor is eligible to teach
+	             */
+            System.out.println("coursesForTeaching called");
+            /* Comment this after code is completed */
+            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\",\"teaching\":\"yes\"}," +
+                    "{\"id\":\"23\",\"desc\":\"Computer Networks\",\"teaching\":\"no\"}," +
+                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\",\"teaching\":\"no\"}]";
+            return test_data;
+        });
+        post("/setTeachCourses", (req, res) -> {
+            // TODO:
+            // NOTE:  example: req.body() will return {"iid":"11","courses":"22,23,24"}}
+            System.out.println("Set Teach Courses called");
+            System.out.println(req.body());
+            return "Set Teach Courses";
+        });
+
+
         /* ===== Student Handlers ===== */
         get("/reportWeka", (req, res) -> {
             // TODO: Convert to JSON
