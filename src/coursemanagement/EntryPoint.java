@@ -1,6 +1,7 @@
 package coursemanagement;
 
 import static spark.Spark.*;
+
 import spark.*;
 import spark.template.velocity.VelocityTemplateEngine;
 
@@ -17,6 +18,7 @@ import java.util.HashMap;
 
 import org.apache.velocity.*;
 import org.apache.velocity.app.VelocityEngine;
+
 
 class CMSFileReader {
 	public String readFile(String fileName) {
@@ -83,109 +85,149 @@ public class EntryPoint {
 			
 			
 		});
+		
+		 /* ===== Read index file ===== */
+        coursemanagement.CMSFileReader cms = new coursemanagement.CMSFileReader();
+        WekaOperator weka = new WekaOperator();
+        get("/", (req, res) -> {
+            return cms.readFile("index.html");
+        });
+        get("/index.html", (req, res) -> {
+            return cms.readFile("index.html");
+        });
 
-		/* ===== Read index file ===== */
-		coursemanagement.CMSFileReader cms = new coursemanagement.CMSFileReader();
-		get("/", (req, res) -> {
-			return cms.readFile("index.html");
-		});
-		get("/index.html", (req, res) -> {
-			return cms.readFile("index.html");
-		});
+	        /* ===== Course Handlers ===== */
+        get("/getCourses", (req, res) -> {
+            // TODO: Get a list of courses in the following format
+            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\"}," +
+                    "{\"id\":\"23\",\"desc\":\"Computer Networks\"}," +
+                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\"}]";
+            return test_data;
+        });
 
-		/* ===== Course Handlers ===== */
-		get("/getCourses", (req, res) -> {
-			// TODO: Get a list of courses in the following format
-			String test_data = "\"[{'id':'22','desc':'Computer Programming'}, "
-					+ "{'id':'23','desc':'Computer Networks'}, " + "{'id':'24','desc':'Computer Architecture'}]\"";
-			return test_data;
-		});
+	        /* ===== Admin Handlers ===== */
+        get("/loginAdmin/:id", (req, res) -> {
+            // TODO: Call Login here
+            return "Login Successful";
+        });
+        get("/loadData/:path", (req, res) -> {
+            // TODO: Load data here
+            return "Data Import Successful";
+        });
+        post("/addCourse", (req, res) -> {
+            // TODO: Add a new Course to the database
+            // NOTE:  example: req.body() will return {"desc":"Computer Programming"}
+            System.out.println(req.body());
+            return "Add Course Successful";
+        });
+        post("/addInstructor", (req, res) -> {
+            // TODO: Add a new Instructor to the database
+            // NOTE:  example: req.body() will return {"name":"Mark Moss"}
+            System.out.println(req.body());
+            return "Add Instructor Successful";
+        });
+        post("/addStudent", (req, res) -> {
+            // TODO: Add a new Student to the database
+            // NOTE:  example: req.body() will return {"name":"Rohit Pitke"}
+            System.out.println(req.body());
+            return "Add Student Successful";
+        });
+        post("/hireInstructor", (req, res) -> {
+            // TODO:
+            // NOTE:  example: req.body() will return {"id":"22"}
+            System.out.println(req.body());
+            return "Instructor Hired";
+        });
+        post("/leaveInstructor", (req, res) -> {
+            // TODO:
+            // NOTE:  example: req.body() will return {"id":"22"}
+            System.out.println(req.body());
+            return "Instructor Left";
+        });
+        post("/startTerm", (req, res) -> {
+            // TODO:
+            // NOTE:  example: req.body() will return {"term":"Fall-2017"}
+            System.out.println(req.body());
+            return "Term Started";
+        });
+        get("/advanceTerm", (req, res) -> {
+            // TODO:
+            System.out.println("Advance Term");
+            return "Term Advanced";
+        });
+        get("/coursesForPrereqs/:courseid", (req, res) -> {
+	            /* TODO:  need a list of courses in the following format.
+	                - The list should not contain courseid
+	                - The list should not contain Courses that already have courseid as their pre-req
+	             */
+            System.out.println("Prereq called");
+            /* Comment this after code is completed */
+            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\",\"prereq\":\"yes\"}," +
+                    "{\"id\":\"23\",\"desc\":\"Computer Networks\",\"prereq\":\"no\"}," +
+                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\",\"prereq\":\"no\"}]";
+            return test_data;
+        });
+        post("/setPrerequisites", (req, res) -> {
+            // TODO:
+            // NOTE:  example: req.body() will return {"cid":"11","prereqs":"22,23,24"}}
+            System.out.println("Set Prerequisites called");
+            System.out.println(req.body());
+            return "Set Pre-requisites";
+        });
 
-		/* ===== Admin Handlers ===== */
-		get("/loginAdmin/:id", (req, res) -> {
-			// TODO: Call Login here
-			return "Login Successful";
-		});
-		get("/loadData/:path", (req, res) -> {
-			// TODO: Load data here
-			return "Data Import Successful";
-		});
-		post("/addCourse", (req, res) -> {
-			// TODO: Add a new Course to the database
-			// NOTE: example: req.body() will return {"desc":"Computer
-			// Programming"}
-			System.out.println(req.body());
-			return "Add Course Successful";
-		});
-		post("/addInstructor", (req, res) -> {
-			// TODO: Add a new Instructor to the database
-			// NOTE: example: req.body() will return {"name":"Mark Moss"}
-			System.out.println(req.body());
-			return "Add Instructor Successful";
-		});
-		post("/addStudent", (req, res) -> {
-			// TODO: Add a new Student to the database
-			// NOTE: example: req.body() will return {"name":"Rohit Pitke"}
-			System.out.println(req.body());
-			return "Add Student Successful";
-		});
-		post("/hireInstructor", (req, res) -> {
-			// TODO:
-			// NOTE: example: req.body() will return {"id":"22"}
-			System.out.println(req.body());
-			return "Instructor Hired";
-		});
-		post("/leaveInstructor", (req, res) -> {
-			// TODO:
-			// NOTE: example: req.body() will return {"id":"22"}
-			System.out.println(req.body());
-			return "Instructor Left";
-		});
-		post("/startTerm", (req, res) -> {
-			// TODO:
-			// NOTE: example: req.body() will return {"term" :"Fall-2017"}
-			System.out.println(req.body());
-			return "Term Started";
-		});
-		get("/advanceTerm", (req, res) -> {
-			// TODO:
-			System.out.println("Advance Term");
-			return "Term Advanced";
-		});
-		get("/coursesForPrereqs/:courseid", (req, res) -> {
-			/*
-			 * TODO: need a list of courses in the following format. - The list
-			 * should not contain courseid - The list should not contain Courses
-			 * that already have courseid as their pre-req
-			 */
-			System.out.println("Prereq called");
-			/* Comment this after code is completed */
-			String test_data = "\"[{'id':'22','desc':'Computer Programming','prereq':'yes'}, "
-					+ "{'id':'23','desc':'Computer Networks','prereq':'no'}, "
-					+ "{'id':'24','desc':'Computer Architecture','prereq':'no'}]\"";
-			System.out.println(test_data);
-			return test_data;
-		});
-		get("/reportWeka", (req, res) -> {
-			// TODO: Need guidance from Jowanza as to what will happen here ...
-			System.out.println("Weka Report");
-			return "Success";
-		});
+        /* ===== Instructor Handlers ===== */
+        get("/coursesForTeaching/:instructorid", (req, res) -> {
+	            /* TODO:  need a list of courses in the following format.
+	                - The list should not contain only the courses the Instructor is eligible to teach
+	             */
+            System.out.println("coursesForTeaching called");
+            /* Comment this after code is completed */
+            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\",\"teaching\":\"yes\"}," +
+                    "{\"id\":\"23\",\"desc\":\"Computer Networks\",\"teaching\":\"no\"}," +
+                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\",\"teaching\":\"no\"}]";
+            return test_data;
+        });
+        post("/setTeachCourses", (req, res) -> {
+            // TODO:
+            // NOTE:  example: req.body() will return {"iid":"11","courses":"22,23,24"}}
+            System.out.println("Set Teach Courses called");
+            System.out.println(req.body());
+            return "Set Teach Courses";
+        });
 
-		/* ===== Student Handlers ===== */
-		get("/loginStudent/:id", (req, res) -> {
-			// TODO:
-			return "Not implemented yet";
-		});
 
-		/* ===== Instructor Handlers ===== */
-		get("/loginInstructor/:id", (req, res) -> {
-			// TODO:
-			return "Not implemented yet";
-		});
+        /* ===== Student Handlers ===== */
+        get("/reportWeka", (req, res) -> {
+            // TODO: Convert to JSON
 
-		StudentDAO studdao = new StudentDAOimpl();
+            System.out.println("Weka Report");
+            return "Success";
+        });
 
+        get("/wekaAnalysis", (req, res) -> {
+            weka.runClassification(weka.queryWeka(""));
+            System.out.println("Weka Report");
+            return "Success";
+        });
+
+
+	        /* ===== Student Handlers ===== */
+        get("/loginStudent/:id", (req, res) -> {
+            // TODO:
+            return "Not implemented yet";
+        });
+
+	        /* ===== Instructor Handlers ===== */
+        get("/loginInstructor/:id", (req, res) -> {
+            // TODO:
+            return "Not implemented yet";
+        });
+
+
+        StudentDAO studdao = new StudentDAOimpl();
+
+
+		
 	}
 
 	public static Route startSim = (Request req, Response resp) -> {
@@ -475,5 +517,6 @@ public class EntryPoint {
 		
 		
 	}
+
 
 }
