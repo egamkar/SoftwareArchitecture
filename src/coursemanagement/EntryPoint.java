@@ -1,5 +1,7 @@
 package coursemanagement;
+
 import static spark.Spark.*;
+
 import spark.*;
 import spark.template.velocity.VelocityTemplateEngine;
 
@@ -15,6 +17,8 @@ import java.util.HashMap;
 
 import org.apache.velocity.*;
 import org.apache.velocity.app.VelocityEngine;
+
+
 
 class CMSFileReader {
     public String readFile(String fileName) {
@@ -41,11 +45,14 @@ public class EntryPoint {
 
         stop();
         port(9000);
-        get("/initialize",loadDB);
-        get("/getStudent/:id",getStudentById);
+        get("/initialize", loadDB);
+        get("/getStudent/:id", getStudentById);
+        get("/getRecord/:id", getStudentRecord);
+        post("/assignGrade", enterAcademicRecord);
 
-        /* ===== Read index file ===== */
+		 /* ===== Read index file ===== */
         coursemanagement.CMSFileReader cms = new coursemanagement.CMSFileReader();
+        WekaOperator weka = new WekaOperator();
         get("/", (req, res) -> {
             return cms.readFile("index.html");
         });
@@ -53,16 +60,16 @@ public class EntryPoint {
             return cms.readFile("index.html");
         });
 
-        /* ===== Course Handlers ===== */
+	        /* ===== Course Handlers ===== */
         get("/getCourses", (req, res) -> {
             // TODO: Get a list of courses in the following format
-            String test_data = "\"[{'id':'22','desc':'Computer Programming'}, " +
-                    "{'id':'23','desc':'Computer Networks'}, " +
-                    "{'id':'24','desc':'Computer Architecture'}]\"";
+            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\",\"prereq\":\"yes\"}," +
+                    "{\"id\":\"23\",\"desc\":\"Computer Networks\",\"prereq\":\"no\"}," +
+                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\",\"prereq\":\"no\"}]";
             return test_data;
         });
 
-        /* ===== Admin Handlers ===== */
+	        /* ===== Admin Handlers ===== */
         get("/loginAdmin/:id", (req, res) -> {
             // TODO: Call Login here
             return "Login Successful";
@@ -113,10 +120,10 @@ public class EntryPoint {
             return "Term Advanced";
         });
         get("/coursesForPrereqs/:courseid", (req, res) -> {
-            /* TODO:  need a list of courses in the following format.
-                - The list should not contain courseid
-                - The list should not contain Courses that already have courseid as their pre-req
-             */
+	            /* TODO:  need a list of courses in the following format.
+	                - The list should not contain courseid
+	                - The list should not contain Courses that already have courseid as their pre-req
+	             */
             System.out.println("Prereq called");
             /* Comment this after code is completed */
             String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\",\"prereq\":\"yes\"}," +
@@ -131,60 +138,92 @@ public class EntryPoint {
             System.out.println(req.body());
             return "Set Pre-requisites";
         });
+        
+        /* ===== Student Handlers ===== */
         get("/reportWeka", (req, res) -> {
-            // TODO: Need guidance from Jowanza as to what will happen here ...
+            // TODO: Convert to JSON
+
             System.out.println("Weka Report");
             return "Success";
         });
 
-        /* ===== Student Handlers ===== */
+        get("/wekaAnalysis", (req, res) -> {
+            weka.runClassification(weka.queryWeka(""));
+            System.out.println("Weka Report");
+            return "Success";
+        });
+
+
+	        /* ===== Student Handlers ===== */
         get("/loginStudent/:id", (req, res) -> {
             // TODO:
             return "Not implemented yet";
         });
 
-        /* ===== Instructor Handlers ===== */
+	        /* ===== Instructor Handlers ===== */
         get("/loginInstructor/:id", (req, res) -> {
             // TODO:
             return "Not implemented yet";
         });
 
 
+        StudentDAO studdao = new StudentDAOimpl();
 
     }
 
 
+    public static Route enterAcademicRecord = (Request req, Response resp) -> {
+        int studentuuid = Integer.parseInt(req.queryParams("studId"));
+        int instuuid = Integer.parseInt(req.queryParams("instID"));
+        int courseuuid = Integer.parseInt(req.queryParams("courseId"));
+        String grade = req.queryParams("grade");
+        String termyear = "Spring_2018";
+        String comment = req.queryParams("comment") != null ? req.queryParams("comment") : null;
+        StudentDAO studdao = new StudentDAOimpl();
+        studdao.enterAcademicRecord(studentuuid, courseuuid, grade, instuuid, termyear, comment);
+        HashMap<String, String> model = new HashMap<>();
+        model.put("name", "Entered");
+        return strictVelocityEngine().render(new ModelAndView(model, "student.vm"));
 
-    public static Route getStudentById = (Request req,Response resp)->{
+    };
+
+    public static Route getStudentById = (Request req, Response resp) -> {
         StudentDAO studdao = new StudentDAOimpl();
         Student stud = studdao.returnStudentInfo(Integer.parseInt(req.params(":id")));
-        HashMap<String,String>model = new HashMap<>();
+        HashMap<String, String> model = new HashMap<>();
         model.put("name", stud.name);
-        return strictVelocityEngine().render(new ModelAndView(model,"student.vm"));
+        return strictVelocityEngine().render(new ModelAndView(model, "student.vm"));
+    };
 
+    public static Route getStudentRecord = (Request req, Response resp) -> {
+        StudentDAO studdao = new StudentDAOimpl();
 
+        ArrayList<academicRecord> record = studdao.returnRecordForStudent(Integer.parseInt(req.params(":id")));
+        HashMap<String, String> model = new HashMap<>();
+        model.put("name", record.get(0).comment);
+        return strictVelocityEngine().render(new ModelAndView(model, "student.vm"));
 
 
     };
 
 
-    public static Route loadDB = (Request req, Response resp)->{
+    public static Route loadDB = (Request req, Response resp) -> {
         addStudents("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/students.csv");
         addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/instructors.csv");
         addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/courses.csv");
         addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/terms.csv");
         addpreReqs("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/prereqs.csv");
         addEligibleCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/eligible.csv");
-        HashMap<String,String>model = new HashMap<>();
+        HashMap<String, String> model = new HashMap<>();
         model.put("name", "test");
-        return strictVelocityEngine().render(new ModelAndView(model,"helloworld.vm"));
+        return strictVelocityEngine().render(new ModelAndView(model, "helloworld.vm"));
     };
 
 
-    private static String print(){
-        HashMap<String,String>model = new HashMap<>();
+    private static String print() {
+        HashMap<String, String> model = new HashMap<>();
         model.put("name", "Rohit");
-        return strictVelocityEngine().render(new ModelAndView(model,"helloworld.vm"));
+        return strictVelocityEngine().render(new ModelAndView(model, "helloworld.vm"));
     }
 
 
@@ -196,50 +235,30 @@ public class EntryPoint {
         return new VelocityTemplateEngine(configuredEngine);
     }
 
-    public static ArrayList<String[]> readFile(String file){
+    public static ArrayList<String[]> readFile(String file) {
         ArrayList<String[]> texts = new ArrayList<String[]>();
-        try{
+        try {
             File newFile = new File(file);
             FileReader fReader = new FileReader(newFile);
             BufferedReader bReader = new BufferedReader(fReader);
             String line = bReader.readLine();
-            while (line != null){
+            while (line != null) {
                 texts.add(line.split(","));
                 line = bReader.readLine();
             }
             bReader.close();
-        }catch (IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
         return texts;
     }
 
-    public static void addStudents(String filename){
+    public static void addStudents(String filename) {
         ArrayList<String[]> student = readFile(filename);
         DBConnection conn = new DBConnection();
 
-        for(String[] studdata:student){
-            String query= "insert into student values(?,?,?,?)";
-            try {
-                PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
-                preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
-                preparedStmt.setString(2, studdata[1]);
-                preparedStmt.setString(3, studdata[2]);
-                preparedStmt.setString(4, studdata[3]);
-                preparedStmt.execute();
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-    }
-    public static void addInstructors(String filename){
-        ArrayList<String[]> student = readFile(filename);
-        DBConnection conn = new DBConnection();
-
-        for(String[] studdata:student){
-            String query= "insert into instructor values(?,?,?,?)";
+        for (String[] studdata : student) {
+            String query = "insert into student values(?,?,?,?)";
             try {
                 PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
                 preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
@@ -255,12 +274,33 @@ public class EntryPoint {
 
     }
 
-    public static void addCourses(String filename){
+    public static void addInstructors(String filename) {
         ArrayList<String[]> student = readFile(filename);
         DBConnection conn = new DBConnection();
 
-        for(String[] studdata:student){
-            String query= "insert into course values(?,?)";
+        for (String[] studdata : student) {
+            String query = "insert into instructor values(?,?,?,?)";
+            try {
+                PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+                preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
+                preparedStmt.setString(2, studdata[1]);
+                preparedStmt.setString(3, studdata[2]);
+                preparedStmt.setString(4, studdata[3]);
+                preparedStmt.execute();
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public static void addCourses(String filename) {
+        ArrayList<String[]> student = readFile(filename);
+        DBConnection conn = new DBConnection();
+
+        for (String[] studdata : student) {
+            String query = "insert into course values(?,?)";
             try {
                 PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
                 preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
@@ -274,12 +314,12 @@ public class EntryPoint {
 
     }
 
-    public static void addTermCourses(String filename){
+    public static void addTermCourses(String filename) {
         ArrayList<String[]> student = readFile(filename);
         DBConnection conn = new DBConnection();
 
-        for(String[] studdata:student){
-            String query= "insert into term values(?,?)";
+        for (String[] studdata : student) {
+            String query = "insert into term values(?,?)";
             try {
                 PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
                 preparedStmt.setInt(2, Integer.parseInt(studdata[0]));
@@ -293,16 +333,16 @@ public class EntryPoint {
 
     }
 
-    public static void addpreReqs(String filename){
+    public static void addpreReqs(String filename) {
         ArrayList<String[]> student = readFile(filename);
         DBConnection conn = new DBConnection();
 
-        for(String[] studdata:student){
-            String query= "insert into prereqs values(?,?)";
+        for (String[] studdata : student) {
+            String query = "insert into prereqs values(?,?)";
             try {
                 PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
                 preparedStmt.setInt(2, Integer.parseInt(studdata[0]));
-                preparedStmt.setInt(1,Integer.parseInt(studdata[1]));
+                preparedStmt.setInt(1, Integer.parseInt(studdata[1]));
                 preparedStmt.execute();
             } catch (SQLException e) {
                 // TODO Auto-generated catch block
@@ -312,16 +352,16 @@ public class EntryPoint {
 
     }
 
-    public static void addEligibleCourses(String filename){
+    public static void addEligibleCourses(String filename) {
         ArrayList<String[]> student = readFile(filename);
         DBConnection conn = new DBConnection();
 
-        for(String[] studdata:student){
-            String query= "insert into eligibleCourses values(?,?)";
+        for (String[] studdata : student) {
+            String query = "insert into eligibleCourses values(?,?)";
             try {
                 PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
                 preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
-                preparedStmt.setInt(2,Integer.parseInt(studdata[1]));
+                preparedStmt.setInt(2, Integer.parseInt(studdata[1]));
                 preparedStmt.execute();
             } catch (SQLException e) {
                 // TODO Auto-generated catch block
@@ -330,7 +370,6 @@ public class EntryPoint {
         }
 
     }
-
 
 
 }

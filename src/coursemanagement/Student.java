@@ -30,7 +30,7 @@ public class Student extends User {
 			}
 		}
 		if(!found){
-		academicRecord ar= new academicRecord(courseid,grade,instuuid,termyear,comment);
+		academicRecord ar= new academicRecord(uuid,courseid,grade,instuuid,termyear,comment);
 		this.records.add(ar);
 		}
 	}
