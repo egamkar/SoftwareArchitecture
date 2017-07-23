@@ -360,22 +360,27 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         var path = "/coursesForPrereqs/" + document.getElementById('acId').value;
         $http({method : "GET", url : path,headers: {'Content-Type':'application/json;'}})
             .then(function mySuccess(response) {
-                console.log(response.data);
                 var records = response.data;
-                /* document.getElementById('message_this').innerHTML = response.data; 
-                var records = JSON.parse(response.data); */
-                console.log(records[0]);
 
                 var tbl  = "<h3>Pre requisites</h3>";
                 tbl = tbl + "<form><table>";
+                var ids = [];
+                ids.push(document.getElementById("acId").value);
                 for (x in records) {
-                    console.log(records[x].desc);
-                    tbl = tbl + "<tr>" + 
-                        "<td>" + records[x].prereq + "</td>" +
-                        "<td>" + records[x].id + "</td>" +
+                    ids.push(records[x].id);
+                    tbl = tbl + "<tr>";
+                    if (records[x].prereq == 'yes') {
+                        tbl = tbl + `<td><input type="checkbox" id="pr` + records[x].id + `" checked></td>`;
+                    } else {
+                        tbl = tbl + `<td><input type="checkbox" id="pr` + records[x].id + `" ></td>`;
+                    }
+
+                    tbl = tbl + "<td>" + records[x].id + "</td>" +
                         "<td>" + records[x].desc + "</td>" + "</tr>";
                 }
-                tbl = tbl + "</table></form>"; 
+                tbl = tbl + "</table>";
+                tbl = tbl + `<input id="prData" type="hidden" value="'` + ids.toString() + `'">`;
+                tbl = tbl + `<button ng-click="aSetPrereqs(); return;">Set Prereqs</button></form>`;
 
                 var temp = $compile(tbl)($scope);
                 angular.element(document.getElementById('action_section')).append(temp);
@@ -383,6 +388,34 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
                 document.getElementById('message_this').innerHTML = response.statusText;
                 return;
             });
+    };
+    $scope.aSetPrereqs = function() {
+        var ids = document.getElementById("prData").value;
+        ids = ids.slice(1, -1);
+        ids = ids.split(",");
+        console.log(ids);
+        var cid = ids[0];
+        ids.shift();
+        var pids = [];
+        for (x in ids) {
+            console.log(ids[x]);
+            if (document.getElementById("pr" + ids[x]).checked) {
+                pids.push(ids[x]);
+            }
+        }
+        var req = { method: 'POST', url: '/setPrerequisites',
+            headers: { 'Content-Type': 'application/json;' },
+            data: { 
+                cid: cid,
+                prereqs: pids.toString()
+            }
+        };
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
     };
 
     /* ===== App init =====*/

@@ -103,7 +103,7 @@ public class EntryPoint {
         });
         post("/startTerm", (req, res) -> {
             // TODO:
-            // NOTE:  example: req.body() will return {"term"   :"Fall-2017"}
+            // NOTE:  example: req.body() will return {"term":"Fall-2017"}
             System.out.println(req.body());
             return "Term Started";
         });
@@ -119,15 +119,17 @@ public class EntryPoint {
              */
             System.out.println("Prereq called");
             /* Comment this after code is completed */
-            String test_data1 = "\"[{'id':'22','desc':'Computer Programming','prereq':'yes'}," +
-                    "{'id':'23','desc':'Computer Networks','prereq':'no'}," +
-                    "{'id':'24','desc':'Computer Architecture','prereq':'no'}]\"";
-
             String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\",\"prereq\":\"yes\"}," +
                     "{\"id\":\"23\",\"desc\":\"Computer Networks\",\"prereq\":\"no\"}," +
                     "{\"id\":\"24\",\"desc\":\"Computer Architecture\",\"prereq\":\"no\"}]";
-            System.out.println(test_data);
             return test_data;
+        });
+        post("/setPrerequisites", (req, res) -> {
+            // TODO:
+            // NOTE:  example: req.body() will return {"cid":"11","prereqs":"22,23,24"}}
+            System.out.println("Set Prerequisites called");
+            System.out.println(req.body());
+            return "Set Pre-requisites";
         });
         get("/reportWeka", (req, res) -> {
             // TODO: Need guidance from Jowanza as to what will happen here ...
