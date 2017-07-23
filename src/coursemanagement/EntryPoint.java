@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,37 +20,72 @@ import org.apache.velocity.*;
 import org.apache.velocity.app.VelocityEngine;
 
 
-
 class CMSFileReader {
-    public String readFile(String fileName) {
-        String out = "";
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(fileName));
+	public String readFile(String fileName) {
+		String out = "";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(fileName));
 
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                out = out + line;
-            }
-            reader.close();
-        } catch (IOException e) {
-            System.out.println("Exception: " + e);
-        }
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				out = out + line;
+			}
+			reader.close();
+		} catch (IOException e) {
+			System.out.println("Exception: " + e);
+		}
 
-        return out;
-    }
+		return out;
+	}
 }
 
 public class EntryPoint {
 
-    public static void main(String[] args) {
+	public static String[] semesters = { "Fall", "Winter", "Spring", "Summer" };
+	public static Integer semIndex = 0;
+	public static Integer semYear;
+	public static boolean systemstarted = false;
 
-        stop();
-        port(9000);
-        get("/initialize", loadDB);
-        get("/getStudent/:id", getStudentById);
-        get("/getRecord/:id", getStudentRecord);
-        post("/assignGrade", enterAcademicRecord);
+	public static void main(String[] args) {
 
+		stop();
+		port(9000);
+		setCurrentTermWithYear();
+		get("/startsim/:year", startSim);
+		get("/nextTerm", nextTerm);
+		get("/initialize", loadDB);
+		get("/getStudent/:id", getStudentById);
+		get("/getRecord/:id", getStudentRecord);
+		post("/assignGrade", enterAcademicRecord);
+		get("/hireInstructor/:id", (req, resp) -> {
+
+			InstructorDAOimpl inst = new InstructorDAOimpl();
+			inst.hireInstructor(Integer.parseInt(req.params(":id")));
+			return "Instructor hired successfully";
+		});
+		get("/leaveInstructor/:id", (req, resp) -> {
+
+			InstructorDAOimpl inst = new InstructorDAOimpl();
+			inst.leaveInstructor(Integer.parseInt(req.params(":id")));
+			return "Instructor is removed successfully";
+		});
+
+		get("/getInstructor/:id", (req, resp) -> {
+			InstructorDAOimpl inst = new InstructorDAOimpl();
+			return "Name:" + inst.returnInstructorInfo(Integer.parseInt(req.params(":id"))).name;
+
+		});
+		
+		get("/teachCourse/:id/:cid",(req,resp)->{
+			InstructorDAOimpl inst = new InstructorDAOimpl();
+			int instid = Integer.parseInt(req.params(":id"));
+			int courseid = Integer.parseInt(req.params(":cid"));
+			int result = inst.teachCourse(instid, courseid);
+			return "Result is:"+result;
+			
+			
+		});
+		
 		 /* ===== Read index file ===== */
         coursemanagement.CMSFileReader cms = new coursemanagement.CMSFileReader();
         WekaOperator weka = new WekaOperator();
@@ -190,207 +226,297 @@ public class EntryPoint {
 
         StudentDAO studdao = new StudentDAOimpl();
 
-    }
 
+		
+	}
 
-    public static Route enterAcademicRecord = (Request req, Response resp) -> {
-        int studentuuid = Integer.parseInt(req.queryParams("studId"));
-        int instuuid = Integer.parseInt(req.queryParams("instID"));
-        int courseuuid = Integer.parseInt(req.queryParams("courseId"));
-        String grade = req.queryParams("grade");
-        String termyear = "Spring_2018";
-        String comment = req.queryParams("comment") != null ? req.queryParams("comment") : null;
-        StudentDAO studdao = new StudentDAOimpl();
-        studdao.enterAcademicRecord(studentuuid, courseuuid, grade, instuuid, termyear, comment);
-        HashMap<String, String> model = new HashMap<>();
-        model.put("name", "Entered");
-        return strictVelocityEngine().render(new ModelAndView(model, "student.vm"));
+	public static Route startSim = (Request req, Response resp) -> {
 
-    };
+		if (systemstarted)
+			return "System has been started already. Use next term";
 
-    public static Route getStudentById = (Request req, Response resp) -> {
-        StudentDAO studdao = new StudentDAOimpl();
-        Student stud = studdao.returnStudentInfo(Integer.parseInt(req.params(":id")));
-        HashMap<String, String> model = new HashMap<>();
-        model.put("name", stud.name);
-        return strictVelocityEngine().render(new ModelAndView(model, "student.vm"));
-    };
+		int semyear = Integer.parseInt(req.params(":year"));
+		DBConnection conn = new DBConnection();
+		String query = "Insert into semTable values(?,?)";
+		try {
+			PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+			preparedStmt.setInt(1, semyear);
+			preparedStmt.setInt(2, 0);
+			preparedStmt.execute();
+			semYear = semyear ;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		systemstarted = true;
+		return "System has been started";
+	};
 
-    public static Route getStudentRecord = (Request req, Response resp) -> {
-        StudentDAO studdao = new StudentDAOimpl();
+	public static Route nextTerm = (Request req, Response resp) -> {
+		int semindex = 0, semyear = 0;
+		DBConnection conn = new DBConnection();
+		String query1 = "Select * from semTable";
+		try {
+			PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query1);
+			ResultSet rs = preparedStmt.executeQuery();
+			while (rs.next()) {
+				semYear = rs.getInt("termyear");
+				semIndex = rs.getInt("semIndex");
+				System.out.println("Updates are " + semYear + ", index" + semIndex);
 
-        ArrayList<academicRecord> record = studdao.returnRecordForStudent(Integer.parseInt(req.params(":id")));
-        HashMap<String, String> model = new HashMap<>();
-        model.put("name", record.get(0).comment);
-        return strictVelocityEngine().render(new ModelAndView(model, "student.vm"));
+			}
 
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-    };
+		if (semesters[semIndex].equals("Summer")) {
+			semYear++;
+			semIndex = 0;
+		} else if (semIndex != semesters.length)
+			semIndex++;
 
+		String query2 = "Update semTable set termyear=?,semIndex=?";
 
-    public static Route loadDB = (Request req, Response resp) -> {
-        addStudents("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/students.csv");
-        addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/instructors.csv");
-        addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/courses.csv");
-        addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/terms.csv");
-        addpreReqs("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/prereqs.csv");
-        addEligibleCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/eligible.csv");
-        HashMap<String, String> model = new HashMap<>();
-        model.put("name", "test");
-        return strictVelocityEngine().render(new ModelAndView(model, "helloworld.vm"));
-    };
+		try {
+			System.out.println("Updates are " + semYear + ", index" + semIndex);
+			PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query2);
+			preparedStmt.setInt(1, semYear);
+			preparedStmt.setInt(2, semIndex);
+			preparedStmt.executeUpdate();
 
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-    private static String print() {
-        HashMap<String, String> model = new HashMap<>();
-        model.put("name", "Rohit");
-        return strictVelocityEngine().render(new ModelAndView(model, "helloworld.vm"));
-    }
+		return "Next term is initialized, year is" + semYear + ",term is:" + semesters[semIndex];
 
+	};
+	public static Route enterAcademicRecord = (Request req, Response resp) -> {
+		int studentuuid = Integer.parseInt(req.queryParams("studId"));
+		int instuuid = Integer.parseInt(req.queryParams("instID"));
+		int courseuuid = Integer.parseInt(req.queryParams("courseId"));
+		String grade = req.queryParams("grade");
+		String termyear = semesters[semIndex]+"_"+semYear.toString();
+		String comment = req.queryParams("comment") != null ? req.queryParams("comment") : null;
+		StudentDAO studdao = new StudentDAOimpl();
+		studdao.enterAcademicRecord(studentuuid, courseuuid, grade, instuuid, termyear, comment);
+		HashMap<String, String> model = new HashMap<>();
+		model.put("name", "Entered");
+		return strictVelocityEngine().render(new ModelAndView(model, "student.vm"));
 
-    private static VelocityTemplateEngine strictVelocityEngine() {
-        VelocityEngine configuredEngine = new VelocityEngine();
-        configuredEngine.setProperty("runtime.references.strict", true);
-        configuredEngine.setProperty("resource.loader", "class");
-        configuredEngine.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-        return new VelocityTemplateEngine(configuredEngine);
-    }
+	};
 
-    public static ArrayList<String[]> readFile(String file) {
-        ArrayList<String[]> texts = new ArrayList<String[]>();
-        try {
-            File newFile = new File(file);
-            FileReader fReader = new FileReader(newFile);
-            BufferedReader bReader = new BufferedReader(fReader);
-            String line = bReader.readLine();
-            while (line != null) {
-                texts.add(line.split(","));
-                line = bReader.readLine();
-            }
-            bReader.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        return texts;
-    }
+	public static Route getStudentById = (Request req, Response resp) -> {
+		StudentDAO studdao = new StudentDAOimpl();
+		Student stud = studdao.returnStudentInfo(Integer.parseInt(req.params(":id")));
+		HashMap<String, String> model = new HashMap<>();
+		model.put("name", stud.name);
+		return strictVelocityEngine().render(new ModelAndView(model, "student.vm"));
+	};
 
-    public static void addStudents(String filename) {
-        ArrayList<String[]> student = readFile(filename);
-        DBConnection conn = new DBConnection();
+	public static Route getStudentRecord = (Request req, Response resp) -> {
+		StudentDAO studdao = new StudentDAOimpl();
 
-        for (String[] studdata : student) {
-            String query = "insert into student values(?,?,?,?)";
-            try {
-                PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
-                preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
-                preparedStmt.setString(2, studdata[1]);
-                preparedStmt.setString(3, studdata[2]);
-                preparedStmt.setString(4, studdata[3]);
-                preparedStmt.execute();
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+		ArrayList<academicRecord> record = studdao.returnRecordForStudent(Integer.parseInt(req.params(":id")));
+		HashMap<String, String> model = new HashMap<>();
+		model.put("name", record.get(0).comment);
+		return strictVelocityEngine().render(new ModelAndView(model, "student.vm"));
 
-    }
+	};
 
-    public static void addInstructors(String filename) {
-        ArrayList<String[]> student = readFile(filename);
-        DBConnection conn = new DBConnection();
+	public static Route loadDB = (Request req, Response resp) -> {
+		addStudents("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/students.csv");
+		addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/instructors.csv");
+		addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/courses.csv");
+		addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/terms.csv");
+		addpreReqs("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/prereqs.csv");
+		addEligibleCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/eligible.csv");
+		HashMap<String, String> model = new HashMap<>();
+		model.put("name", "test");
+		return strictVelocityEngine().render(new ModelAndView(model, "helloworld.vm"));
+	};
 
-        for (String[] studdata : student) {
-            String query = "insert into instructor values(?,?,?,?)";
-            try {
-                PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
-                preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
-                preparedStmt.setString(2, studdata[1]);
-                preparedStmt.setString(3, studdata[2]);
-                preparedStmt.setString(4, studdata[3]);
-                preparedStmt.execute();
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+	private static String print() {
+		HashMap<String, String> model = new HashMap<>();
+		model.put("name", "Rohit");
+		return strictVelocityEngine().render(new ModelAndView(model, "helloworld.vm"));
+	}
 
-    }
+	private static VelocityTemplateEngine strictVelocityEngine() {
+		VelocityEngine configuredEngine = new VelocityEngine();
+		configuredEngine.setProperty("runtime.references.strict", true);
+		configuredEngine.setProperty("resource.loader", "class");
+		configuredEngine.setProperty("class.resource.loader.class",
+				"org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+		return new VelocityTemplateEngine(configuredEngine);
+	}
 
-    public static void addCourses(String filename) {
-        ArrayList<String[]> student = readFile(filename);
-        DBConnection conn = new DBConnection();
+	public static ArrayList<String[]> readFile(String file) {
+		ArrayList<String[]> texts = new ArrayList<String[]>();
+		try {
+			File newFile = new File(file);
+			FileReader fReader = new FileReader(newFile);
+			BufferedReader bReader = new BufferedReader(fReader);
+			String line = bReader.readLine();
+			while (line != null) {
+				texts.add(line.split(","));
+				line = bReader.readLine();
+			}
+			bReader.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return texts;
+	}
 
-        for (String[] studdata : student) {
-            String query = "insert into course values(?,?)";
-            try {
-                PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
-                preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
-                preparedStmt.setString(2, studdata[1]);
-                preparedStmt.execute();
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+	public static void addStudents(String filename) {
+		ArrayList<String[]> student = readFile(filename);
+		DBConnection conn = new DBConnection();
 
-    }
+		for (String[] studdata : student) {
+			String query = "insert into student values(?,?,?,?)";
+			try {
+				PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+				preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
+				preparedStmt.setString(2, studdata[1]);
+				preparedStmt.setString(3, studdata[2]);
+				preparedStmt.setString(4, studdata[3]);
+				preparedStmt.execute();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
-    public static void addTermCourses(String filename) {
-        ArrayList<String[]> student = readFile(filename);
-        DBConnection conn = new DBConnection();
+	}
 
-        for (String[] studdata : student) {
-            String query = "insert into term values(?,?)";
-            try {
-                PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
-                preparedStmt.setInt(2, Integer.parseInt(studdata[0]));
-                preparedStmt.setString(1, studdata[1]);
-                preparedStmt.execute();
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+	public static void addInstructors(String filename) {
+		ArrayList<String[]> student = readFile(filename);
+		DBConnection conn = new DBConnection();
 
-    }
+		for (String[] studdata : student) {
+			String query = "insert into instructor values(?,?,?,?,?)";
+			try {
+				PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+				preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
+				preparedStmt.setString(2, studdata[1]);
+				preparedStmt.setString(3, studdata[2]);
+				preparedStmt.setString(4, studdata[3]);
+				preparedStmt.setString(5, "INACTIVE");
+				preparedStmt.execute();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
-    public static void addpreReqs(String filename) {
-        ArrayList<String[]> student = readFile(filename);
-        DBConnection conn = new DBConnection();
+	}
 
-        for (String[] studdata : student) {
-            String query = "insert into prereqs values(?,?)";
-            try {
-                PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
-                preparedStmt.setInt(2, Integer.parseInt(studdata[0]));
-                preparedStmt.setInt(1, Integer.parseInt(studdata[1]));
-                preparedStmt.execute();
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+	public static void addCourses(String filename) {
+		ArrayList<String[]> student = readFile(filename);
+		DBConnection conn = new DBConnection();
 
-    }
+		for (String[] studdata : student) {
+			String query = "insert into course values(?,?)";
+			try {
+				PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+				preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
+				preparedStmt.setString(2, studdata[1]);
+				preparedStmt.execute();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
-    public static void addEligibleCourses(String filename) {
-        ArrayList<String[]> student = readFile(filename);
-        DBConnection conn = new DBConnection();
+	}
 
-        for (String[] studdata : student) {
-            String query = "insert into eligibleCourses values(?,?)";
-            try {
-                PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
-                preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
-                preparedStmt.setInt(2, Integer.parseInt(studdata[1]));
-                preparedStmt.execute();
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+	public static void addTermCourses(String filename) {
+		ArrayList<String[]> student = readFile(filename);
+		DBConnection conn = new DBConnection();
 
-    }
+		for (String[] studdata : student) {
+			String query = "insert into term values(?,?)";
+			try {
+				PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+				preparedStmt.setInt(2, Integer.parseInt(studdata[0]));
+				preparedStmt.setString(1, studdata[1]);
+				preparedStmt.execute();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public static void addpreReqs(String filename) {
+		ArrayList<String[]> student = readFile(filename);
+		DBConnection conn = new DBConnection();
+
+		for (String[] studdata : student) {
+			String query = "insert into prereqs values(?,?)";
+			try {
+				PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+				preparedStmt.setInt(2, Integer.parseInt(studdata[0]));
+				preparedStmt.setInt(1, Integer.parseInt(studdata[1]));
+				preparedStmt.execute();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public static void addEligibleCourses(String filename) {
+		ArrayList<String[]> student = readFile(filename);
+		DBConnection conn = new DBConnection();
+
+		for (String[] studdata : student) {
+			String query = "insert into eligibleCourses values(?,?)";
+			try {
+				PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+				preparedStmt.setInt(1, Integer.parseInt(studdata[0]));
+				preparedStmt.setInt(2, Integer.parseInt(studdata[1]));
+				preparedStmt.execute();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+	
+	
+	public static void setCurrentTermWithYear(){
+		DBConnection conn = new DBConnection();
+		String[] semesters = { "Fall", "Winter", "Spring", "Summer" };
+
+		int semyear=0,semindex=0;
+		String query1 = "Select * from semTable";
+		try {
+			PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query1);
+			ResultSet rs = preparedStmt.executeQuery();
+			while (rs.next()) {
+				semYear = rs.getInt("termyear");
+				semIndex = rs.getInt("semIndex");
+				
+				System.out.println("Updates are " + semYear + ", index" + semIndex);
+
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
 
 
 }
