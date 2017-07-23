@@ -119,9 +119,13 @@ public class EntryPoint {
              */
             System.out.println("Prereq called");
             /* Comment this after code is completed */
-            String test_data = "\"[{'id':'22','desc':'Computer Programming','prereq':'yes'}, " +
-                    "{'id':'23','desc':'Computer Networks','prereq':'no'}, " +
+            String test_data1 = "\"[{'id':'22','desc':'Computer Programming','prereq':'yes'}," +
+                    "{'id':'23','desc':'Computer Networks','prereq':'no'}," +
                     "{'id':'24','desc':'Computer Architecture','prereq':'no'}]\"";
+
+            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\",\"prereq\":\"yes\"}," +
+                    "{\"id\":\"23\",\"desc\":\"Computer Networks\",\"prereq\":\"no\"}," +
+                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\",\"prereq\":\"no\"}]";
             System.out.println(test_data);
             return test_data;
         });

@@ -40,16 +40,16 @@
     </div>
     <div id="admin_view">
         <div>
-            Select Action:
+            <h4>Select Action</h4>
             <button ng-click="aLoadData()">Load Data</button>
             <button ng-click="aAddCourse()">Add Course</button>
+            <button ng-click="aAddPrereqs()">Add Pre-requisites</button>
             <button ng-click="aAddInstructor()">Add Instructor</button>
             <button ng-click="aAddStudent()">Add Student</button>
             <button ng-click="aHireInstructor()">Hire Instructor</button>
             <button ng-click="aLeaveInstructor()">Leave Instructor</button>
             <button ng-click="aStartTerm()">Start Term</button>
             <button ng-click="aAdvanceTerm()">Advance Term</button>
-            <button ng-click="aAddPrereqs()">Add Pre-requisites</button>
             <button ng-click="aWekaReport()">Display Weka Report</button>
         </div>
         <hr>
@@ -355,18 +355,36 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         var temp = $compile(x)($scope);
         angular.element(document.getElementById('action_section')).append(temp);
     };
+
     $scope.aCallAddPrereqs = function() {
         var path = "/coursesForPrereqs/" + document.getElementById('acId').value;
-        var prereqCourses;
-        $http({method : "GET", url : path})
+        $http({method : "GET", url : path,headers: {'Content-Type':'application/json;'}})
             .then(function mySuccess(response) {
-				document.getElementById('message_this').innerHTML = response.data;
-                prereqCourses = response.data;
+                console.log(response.data);
+                var records = response.data;
+                /* document.getElementById('message_this').innerHTML = response.data; 
+                var records = JSON.parse(response.data); */
+                console.log(records[0]);
+
+                var tbl  = "<h3>Pre requisites</h3>";
+                tbl = tbl + "<form><table>";
+                for (x in records) {
+                    console.log(records[x].desc);
+                    tbl = tbl + "<tr>" + 
+                        "<td>" + records[x].prereq + "</td>" +
+                        "<td>" + records[x].id + "</td>" +
+                        "<td>" + records[x].desc + "</td>" + "</tr>";
+                }
+                tbl = tbl + "</table></form>"; 
+
+                var temp = $compile(tbl)($scope);
+                angular.element(document.getElementById('action_section')).append(temp);
             }, function myError(response) {
-            	document.getElementById('message_this').innerHTML = response.statusText;
+                document.getElementById('message_this').innerHTML = response.statusText;
                 return;
-        	});
+            });
     };
+
     /* ===== App init =====*/
     var app_init = function () {
         document.getElementById("admin_page").disabled = true;
