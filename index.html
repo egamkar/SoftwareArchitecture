@@ -6,6 +6,9 @@
       <style type = "text/css"> 
         body {margin-left : 50px;} 
         .msg {margin : 10px; color: #0000ff;}
+        table, th , td { border: 1px solid grey; border-collapse: collapse; padding: 5px;}
+        table tr:nth-child(odd) {background-color: #f1f1f1;}
+        table tr:nth-child(even) {background-color: #ffffff;}
       </style> 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
     </head>
@@ -188,18 +191,17 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
 
     $scope.iAssignGrade = function() {
         var gr = `<h3>Assign Grade</h3>
-            <form>
-            Course Id: <input type="text" id="grcid" required>
-            Student Id: <input type="text" id="grsid" required>
-            Term: <Input type="text" id="grterm" required>
-            Grade (A - F): <input type=text" id="grade" required>
-            Comment: <input type="text" id="grcomment">
+            <form><table>
+            <tr><td>Course Id: </td><td><input type="text" id="grcid" required></td></tr>
+            <tr><td>Student Id: </td><td><input type="text" id="grsid" required></td></tr>
+            <tr><td>Term: </td><td><Input type="text" id="grterm" required></td></tr>
+            <tr><td>Grade (A - F): </td><td><input type=text" id="grade" required></td></tr>
+            <tr><td>Comment: </td><td><input type="text" id="grcomment"></td></tr><table>
             <button ng-click="iSetGrade(); return;">Set Grade</button>
             </form>`;
 
             var temp = $compile(gr)($scope);
             document.getElementById('action_section').innerHTML = "";
-            angular.element(document.getElementById('action_section')).append(temp);
             angular.element(document.getElementById('action_section')).append(temp);
     };
     $scope.iSetGrade = function() {
