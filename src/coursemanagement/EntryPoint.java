@@ -57,6 +57,8 @@ public class EntryPoint {
 		get("/getStudent/:id", getStudentById);
 		get("/getRecord/:id", getStudentRecord);
 		// post("/assignGrade", enterAcademicRecord);
+
+
 		get("/hireInstructor/:id", (req, resp) -> {
 
 			InstructorDAOimpl inst = new InstructorDAOimpl();
@@ -88,6 +90,7 @@ public class EntryPoint {
 		
 		 /* ===== Read index file ===== */
         coursemanagement.CMSFileReader cms = new coursemanagement.CMSFileReader();
+
       //  WekaOperator weka = new WekaOperator();
         get("/", (req, res) -> {
             return cms.readFile("index.html");

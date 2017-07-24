@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <head>
+      <title>Course Management System</title> 
+      
+      <style type = "text/css"> 
+        body {margin-left : 50px;} 
+        .msg {margin : 10px; color: #0000ff;}
+      </style> 
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    </head>
 <body>
 
 <div ng-app="cmsApp" ng-controller="cmsCtrl">
@@ -15,10 +23,10 @@
     <hr>
     <div>
         <h2>{{content_page.title}}</h2>
-        <h3 id="message_this"></h3>
         <form>
             id: <input type="text" id="login_id" required><button ng-click="this[content_page.method]()">Login</button>
         </form>
+        <div class="msg" id="message_this"></div>
     </div>
     <hr>
     <div id="student_view">
@@ -82,7 +90,13 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         document.getElementById('admin_view').style.display = 'none';        		
         document.getElementById(view).style.display = 'block';
 	};
-	
+	$scope.displayMessage = function(type, msg) {
+        document.getElementById("message_info").innerHTML = "";
+        document.getElementById("message_success").innerHTML = "";
+        document.getElementById("message_error").innerHTML = "";
+        document.getElementById("message_" + type).innerHTML = msg;
+    };
+
 	/* ===== Main Menu Items ===== */
     $scope.student_page = function() {
 		$scope.clearAll();
@@ -227,7 +241,7 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         document.getElementById('message_this').innerHTML = "";
         var x  = `<h3>Register for Course</h3>
         	<form>Course Id: <input type="text" id="cid" required>
-            <button ng-click="sCallRegisterCourse(); return;">Add</button></form>`;
+            <button ng-click="sCallRegisterCourse(); return;">Register</button></form>`;
         var temp = $compile(x)($scope);
         angular.element(document.getElementById('action_section')).append(temp);
     };
@@ -276,11 +290,11 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         document.getElementById('message_this').innerHTML = "";
         var x  = `<h3>View Grades</h3>
         	<form>Course Id: <input type="text" id="cid" required>
-            <button ng-click="sCallRegisterCourse(); return;">View</button></form>`;
+            <button ng-click="sCallViewGrades(); return;">View</button></form>`;
         var temp = $compile(x)($scope);
         angular.element(document.getElementById('action_section')).append(temp);
     };
-    $scope.sCallRegisterCourse = function() {
+    $scope.sCallViewGrades = function() {
         var req = { method: 'POST', url: '/viewGrades',
             headers: {'Content-Type':'json;'},
             data: {
