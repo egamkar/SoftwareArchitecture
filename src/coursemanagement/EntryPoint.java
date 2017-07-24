@@ -176,6 +176,10 @@ public class EntryPoint {
         });
 
         /* ===== Instructor Handlers ===== */
+		get("/loginInstructor/:id", (req, res) -> {
+			// TODO:
+			return "Not implemented yet";
+		});
         get("/coursesForTeaching/:instructorid", (req, res) -> {
 	            /* TODO:  need a list of courses in the following format.
 	                - The list should not contain only the courses the Instructor is eligible to teach
@@ -204,6 +208,24 @@ public class EntryPoint {
 		});
 
         /* ===== Student Handlers ===== */
+		get("/loginStudent/:id", (req, res) -> {
+			// TODO:
+			return "Not implemented yet";
+		});
+
+		post("/registerCourse", (req, res) -> {
+			// TODO:
+			// NOTE:  example: req.body() will return {"sid":"1","cid":"22"}
+			System.out.println(req.body());
+			return "Course Registerd";
+		});
+        post("/viewGrades", (req, res) -> {
+            // TODO:
+            String test_data = "[{\"term\":\"Fall-2017\",\"instructor\":\"Mark Moss\",\"grade\":\"F\",\"comment\":\"Does not understand concepts\"}," +
+                    "{\"term\":\"Spring-2018\",\"instructor\":\"Mark Moss\",\"grade\":\"D\",\"comment\":\"More work needed\"}," +
+                    "{\"term\":\"Fall-2018\",\"instructor\":\"Mark Moss\",\"grade\":\"A\",\"comment\":\"Good Job\"}]";
+            return test_data;
+        });
         get("/reportWeka", (req, res) -> {
             // TODO: Convert to JSON
 
@@ -217,18 +239,6 @@ public class EntryPoint {
             return "Success";
         });
 
-
-	        /* ===== Student Handlers ===== */
-        get("/loginStudent/:id", (req, res) -> {
-            // TODO:
-            return "Not implemented yet";
-        });
-
-	        /* ===== Instructor Handlers ===== */
-        get("/loginInstructor/:id", (req, res) -> {
-            // TODO:
-            return "Not implemented yet";
-        });
 
 
      //   StudentDAO studdao = new StudentDAOimpl();
