@@ -93,12 +93,6 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         document.getElementById('admin_view').style.display = 'none';        		
         document.getElementById(view).style.display = 'block';
 	};
-	$scope.displayMessage = function(type, msg) {
-        document.getElementById("message_info").innerHTML = "";
-        document.getElementById("message_success").innerHTML = "";
-        document.getElementById("message_error").innerHTML = "";
-        document.getElementById("message_" + type).innerHTML = msg;
-    };
 
 	/* ===== Main Menu Items ===== */
     $scope.student_page = function() {
@@ -129,67 +123,37 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
             	document.getElementById('message_this').innerHTML = response.statusText;
         	});
     };
+	/* Teach Course */
     $scope.iTeachCourse = function() {
-        var path = "/coursesForTeaching/" + document.getElementById('login_id').value;
-        $http({method : "GET", url : path,headers: {'Content-Type':'application/json;'}})
-            .then(function mySuccess(response) {
-                var records = response.data;
-
-                var tbl  = "<h3>Eligible Courses</h3>";
-                tbl = tbl + "<form><table>";
-                var ids = [];
-                ids.push(document.getElementById("login_id").value);
-                for (x in records) {
-                    ids.push(records[x].id);
-                    tbl = tbl + "<tr>";
-                    if (records[x].teaching == 'yes') {
-                        tbl = tbl + `<td><input type="checkbox" id="th` + records[x].id + `" checked></td>`;
-                    } else {
-                        tbl = tbl + `<td><input type="checkbox" id="th` + records[x].id + `" ></td>`;
-                    }
-
-                    tbl = tbl + "<td>" + records[x].id + "</td>" +
-                        "<td>" + records[x].desc + "</td>" + "</tr>";
-                }
-                tbl = tbl + "</table>";
-                tbl = tbl + `<input id="thData" type="hidden" value="'` + ids.toString() + `'">`;
-                tbl = tbl + `<button ng-click="aSetTeachCourses(); return;">Set Teach Courses</button></form>`;
-
-                var temp = $compile(tbl)($scope);
-                document.getElementById('action_section').innerHTML = "";
-                angular.element(document.getElementById('action_section')).append(temp);
-            }, function myError(response) {
-                document.getElementById('message_this').innerHTML = response.statusText;
-                return;
-            });
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        var x  = `<h3>Teach Course</h3>
+        	<form>Course Id: <input type="text" id="cid" required>
+            <button ng-click="sCallTeachCourse(); return;">Teach</button></form>`;
+        var temp = $compile(x)($scope);
+        angular.element(document.getElementById('action_section')).append(temp);
     };
-    $scope.aSetTeachCourses = function() {
-        var ids = document.getElementById("thData").value.slice(1, -1).split(",");
-        var iid = ids[0];
-        ids.shift();
-        var pids = [];
-        for (x in ids) {
-            console.log(ids[x]);
-            if (document.getElementById("th" + ids[x]).checked) {
-                pids.push(ids[x]);
-            }
-        }
-        var req = { method: 'POST', url: '/setTeachCourses',
-            headers: { 'Content-Type': 'application/json;' },
-            data: { 
-                cid: iid,
-                courses: pids.toString()
+    $scope.sCallTeachCourse = function() {
+        var req = { method: 'POST', url: '/teachCourse',
+            headers: {'Content-Type':'json;'},
+            data: {
+                iid: document.getElementById("login_id").value,
+                cid: document.getElementById("cid").value
             }
         };
-        $http(req)
-        .then(function(response) {
-            document.getElementById('message_this').innerHTML = response.data;
-        }, function(){
-            document.getElementById('message_this').innerHTML = response.statusText;
-        });
-    };
 
+        $http(req)
+            .then(function(response){
+                document.getElementById('message_this').innerHTML = response.data;
+            }, function(){
+                document.getElementById('message_this').innerHTML = response.statusText;
+            });
+    };
+    /* Assign Grade */
     $scope.iAssignGrade = function() {
+        document.getElementById('message_this').innerHTML = "";
+        document.getElementById('action_section').innerHTML = "";
+
         var gr = `<h3>Assign Grade</h3>
             <form><table>
             <tr><td>Course Id: </td><td><input type="text" id="grcid" required></td></tr>
@@ -201,7 +165,6 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
             </form>`;
 
             var temp = $compile(gr)($scope);
-            document.getElementById('action_section').innerHTML = "";
             angular.element(document.getElementById('action_section')).append(temp);
     };
     $scope.iSetGrade = function() {
