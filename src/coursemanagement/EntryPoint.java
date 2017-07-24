@@ -56,7 +56,7 @@ public class EntryPoint {
 		get("/initialize", loadDB);
 		get("/getStudent/:id", getStudentById);
 		get("/getRecord/:id", getStudentRecord);
-		post("/assignGrade", enterAcademicRecord);
+		// post("/assignGrade", enterAcademicRecord);
 		get("/hireInstructor/:id", (req, resp) -> {
 
 			InstructorDAOimpl inst = new InstructorDAOimpl();
@@ -189,12 +189,19 @@ public class EntryPoint {
         });
         post("/setTeachCourses", (req, res) -> {
             // TODO:
-            // NOTE:  example: req.body() will return {"iid":"11","courses":"22,23,24"}}
+            // NOTE:  example: req.body() will return {"iid":"11","courses":"22,23,24"}
             System.out.println("Set Teach Courses called");
             System.out.println(req.body());
             return "Set Teach Courses";
         });
-
+		post("/assignGrade", (req, res) -> {
+			// TODO:
+			// NOTE:  example: req.body() will return
+			// {"grcid":"1","grsid":"3","grterm":"Fall-2017","grade":"C","grcomment":"need to do more work"}
+			System.out.println("Assign Grade called");
+			System.out.println(req.body());
+			return "Grade Assigned";
+		});
 
         /* ===== Student Handlers ===== */
         get("/reportWeka", (req, res) -> {

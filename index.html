@@ -139,6 +139,7 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
                 tbl = tbl + `<button ng-click="aSetTeachCourses(); return;">Set Teach Courses</button></form>`;
 
                 var temp = $compile(tbl)($scope);
+                document.getElementById('action_section').innerHTML = "";
                 angular.element(document.getElementById('action_section')).append(temp);
             }, function myError(response) {
                 document.getElementById('message_this').innerHTML = response.statusText;
@@ -183,6 +184,8 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
             </form>`;
 
             var temp = $compile(gr)($scope);
+            document.getElementById('action_section').innerHTML = "";
+            angular.element(document.getElementById('action_section')).append(temp);
             angular.element(document.getElementById('action_section')).append(temp);
     };
     $scope.iSetGrade = function() {
