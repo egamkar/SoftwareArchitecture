@@ -66,7 +66,9 @@ public class EntryPoint {
 		get("/initialize", loadDB);
 		get("/getStudent/:id", getStudentById);
 		get("/getRecord/:id", getStudentRecord);
-		post("/assignGrade", enterAcademicRecord);
+		// post("/assignGrade", enterAcademicRecord);
+
+
 		get("/hireInstructor/:id", (req, resp) -> {
 
 			InstructorDAOimpl inst = new InstructorDAOimpl();
@@ -107,6 +109,7 @@ public class EntryPoint {
 		
 		 /* ===== Read index file ===== */
         coursemanagement.CMSFileReader cms = new coursemanagement.CMSFileReader();
+
       //  WekaOperator weka = new WekaOperator();
         get("/", (req, res) -> {
             return cms.readFile("index.html");
@@ -205,27 +208,46 @@ public class EntryPoint {
         });
 
         /* ===== Instructor Handlers ===== */
-        get("/coursesForTeaching/:instructorid", (req, res) -> {
-	            /* TODO:  need a list of courses in the following format.
-	                - The list should not contain only the courses the Instructor is eligible to teach
-	             */
-            System.out.println("coursesForTeaching called");
-            /* Comment this after code is completed */
-            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\",\"teaching\":\"yes\"}," +
-                    "{\"id\":\"23\",\"desc\":\"Computer Networks\",\"teaching\":\"no\"}," +
-                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\",\"teaching\":\"no\"}]";
-            return test_data;
-        });
-        post("/setTeachCourses", (req, res) -> {
-            // TODO:
-            // NOTE:  example: req.body() will return {"iid":"11","courses":"22,23,24"}}
-            System.out.println("Set Teach Courses called");
-            System.out.println(req.body());
-            return "Set Teach Courses";
-        });
+		get("/loginInstructor/:id", (req, res) -> {
+			// TODO:
+			return "Not implemented yet";
+		});
 
+        post("/teachCourse", (req, res) -> {
+            // TODO:
+            // NOTE:  example: req.body() will return {"iid":"11","cid":"22"}
+            System.out.println("teachCourse called");
+            System.out.println(req.body());
+            return "Teach Course Successful";
+        });
+		post("/assignGrade", (req, res) -> {
+			// TODO:
+			// NOTE:  example: req.body() will return
+			// {"grcid":"1","grsid":"3","grterm":"Fall-2017","grade":"C","grcomment":"need to do more work"}
+			System.out.println("Assign Grade called");
+			System.out.println(req.body());
+			return "Grade Assigned";
+		});
 
         /* ===== Student Handlers ===== */
+		get("/loginStudent/:id", (req, res) -> {
+			// TODO:
+			return "Not implemented yet";
+		});
+
+		post("/registerCourse", (req, res) -> {
+			// TODO:
+			// NOTE:  example: req.body() will return {"sid":"1","cid":"22"}
+			System.out.println(req.body());
+			return "Course Registerd";
+		});
+        post("/viewGrades", (req, res) -> {
+            // TODO:
+            String test_data = "[{\"term\":\"Fall-2017\",\"instructor\":\"Mark Moss\",\"grade\":\"F\",\"comment\":\"Does not understand concepts\"}," +
+                    "{\"term\":\"Spring-2018\",\"instructor\":\"Mark Moss\",\"grade\":\"D\",\"comment\":\"More work needed\"}," +
+                    "{\"term\":\"Fall-2018\",\"instructor\":\"Mark Moss\",\"grade\":\"A\",\"comment\":\"Good Job\"}]";
+            return test_data;
+        });
         get("/reportWeka", (req, res) -> {
             // TODO: Convert to JSON
 
@@ -239,18 +261,6 @@ public class EntryPoint {
             return "Success";
         });
 
-
-	        /* ===== Student Handlers ===== */
-        get("/loginStudent/:id", (req, res) -> {
-            // TODO:
-            return "Not implemented yet";
-        });
-
-	        /* ===== Instructor Handlers ===== */
-        get("/loginInstructor/:id", (req, res) -> {
-            // TODO:
-            return "Not implemented yet";
-        });
 
 
         StudentDAO studdao = new StudentDAOimpl();
