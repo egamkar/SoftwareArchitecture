@@ -42,17 +42,18 @@ public class InstructorDAOimpl implements InstructorDAO {
 	}
 
 	@Override
-	public void hireInstructor(int uuid) {
+	public boolean hireInstructor(int uuid) throws SQLException {
 		DBConnection conn = new DBConnection();
 		try {
 			PreparedStatement stmt = conn.dbConnection().prepareStatement(setStateInst);
 			stmt.setInt(2, uuid);
 			stmt.setString(1, "ACTIVE");
 			stmt.executeUpdate();
+			return true;
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -124,15 +125,7 @@ public class InstructorDAOimpl implements InstructorDAO {
 			
 		}
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	
 	}
 
 	private void createTeachingRecord(int uuid, int cid) {
@@ -149,11 +142,6 @@ public class InstructorDAOimpl implements InstructorDAO {
 			e.printStackTrace();
 			
 		}
-		
-		
-		
-		
-		
 		
 	}
 
