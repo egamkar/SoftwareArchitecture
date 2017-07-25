@@ -111,7 +111,7 @@ public class EntryPoint {
 		 /* ===== Read index file ===== */
         coursemanagement.CMSFileReader cms = new coursemanagement.CMSFileReader();
 
-      //  WekaOperator weka = new WekaOperator();
+        WekaOperator weka = new WekaOperator();
         get("/", (req, res) -> {
             return cms.readFile("index.html");
         });
@@ -288,14 +288,19 @@ public class EntryPoint {
             return json;
       });
         get("/reportWeka", (req, res) -> {
-                  System.out.println("Weka Report");
-            return "Success";
+               
+            String weka_data_test = "{\"Number of Students\":10, \"Course with the most students Registered\": \"CS 255\" }";
+        	weka.summarizeData(weka.queryWeka("select * from student"));;
+     
+            return weka_data_test;
         });
 
         get("/wekaAnalysis", (req, res) -> {
+        	
+        	String weka_test_classification_data = "{\"group_1\":[1,2,3,4,5,6], \"group_2\": [6,8,9,10], \"group_3\": [44,55,64,11], \"group_4\":[101,13,22,56] }";
     //        weka.runClassification(weka.queryWeka(""));
             System.out.println("Weka Report");
-            return "Success";
+            return weka_test_classification_data;
         });
 
 

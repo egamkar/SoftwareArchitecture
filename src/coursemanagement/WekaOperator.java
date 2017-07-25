@@ -14,11 +14,12 @@ public class WekaOperator {
      * Query MySQL to Get Data For Weka
      */
     public Instances queryWeka(String rawQuery) throws Exception {
-
+    	
+    	Class.forName("com.mysql.jdbc.Driver");
         InstanceQuery query = new InstanceQuery();
-
-        query.setDatabaseURL("jdbc:mysql://localhost:3306/softwareArch?user=root&password=password");
-
+        query.setDatabaseURL("jdbc:mysql://localhost:3306/softwareArch?#characterEncoding=UTF-8");
+        query.setUsername("root");
+        query.setPassword("cs6310");
         query.setQuery(rawQuery);
 
         return query.retrieveInstances();
