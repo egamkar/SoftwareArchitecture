@@ -15,9 +15,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.velocity.*;
 import org.apache.velocity.app.VelocityEngine;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 
 
 class CMSFileReader {
@@ -38,6 +42,12 @@ class CMSFileReader {
 		return out;
 	}
 }
+class JsonUtil {
+    public static Map<String, String> parse(String object) {
+        return new Gson().fromJson(object, Map.class);
+        
+    }
+}
 
 public class EntryPoint {
 
@@ -50,7 +60,7 @@ public class EntryPoint {
 
 		stop();
 		port(9000);
-	//	setCurrentTermWithYear();
+		setCurrentTermWithYear();
 		get("/startsim/:year", startSim);
 		get("/nextTerm", nextTerm);
 		get("/initialize", loadDB);
@@ -85,6 +95,15 @@ public class EntryPoint {
 			int result = inst.teachCourse(instid, courseid);
 			return "Result is:"+result;
 			
+			
+		});
+		
+		
+		get("/requestCourse/:id/:cid",(req,resp)->{
+			
+			StudentDAOimpl stud = new StudentDAOimpl();
+			int returnVal = stud.requestCourse(Integer.parseInt(req.params(":id")), Integer.parseInt(req.params(":cid")), semesters[semIndex]);
+			return "Return value is"+ returnVal;
 			
 		});
 		
@@ -138,14 +157,24 @@ public class EntryPoint {
         post("/hireInstructor", (req, res) -> {
             // TODO:
             // NOTE:  example: req.body() will return {"id":"22"}
-            System.out.println(req.body());
-            return "Instructor Hired";
-        });
+        	   Map<String, String> map = new JsonUtil().parse(req.body());
+               System.out.println(map.get("id"));
+               
+               InstructorDAOimpl inst = new InstructorDAOimpl();
+   				boolean isSuccess = inst.hireInstructor(Integer.parseInt(map.get("id")));
+   				return "Instructor hired successfully if ID is accurate";
+   		});
+        
+
+
+    
         post("/leaveInstructor", (req, res) -> {
-            // TODO:
-            // NOTE:  example: req.body() will return {"id":"22"}
-            System.out.println(req.body());
-            return "Instructor Left";
+        	  Map<String, String> map = new JsonUtil().parse(req.body());
+              System.out.println(map.get("id"));
+              InstructorDAOimpl inst = new InstructorDAOimpl();
+ 			  inst.leaveInstructor(Integer.parseInt(map.get("id")));
+ 			  return "Instructor left successfully if ID is accurate";
+           
         });
         post("/startTerm", (req, res) -> {
             // TODO:
@@ -236,7 +265,7 @@ public class EntryPoint {
 
 
 
-     //   StudentDAO studdao = new StudentDAOimpl();
+        StudentDAO studdao = new StudentDAOimpl();
 
 
 		
@@ -311,7 +340,7 @@ public class EntryPoint {
 		int instuuid = Integer.parseInt(req.queryParams("instID"));
 		int courseuuid = Integer.parseInt(req.queryParams("courseId"));
 		String grade = req.queryParams("grade");
-		String termyear = semesters[semIndex]+"_"+semYear.toString();
+		String termyear = semesters[semIndex]+semYear.toString();
 		String comment = req.queryParams("comment") != null ? req.queryParams("comment") : null;
 		StudentDAO studdao = new StudentDAOimpl();
 		studdao.enterAcademicRecord(studentuuid, courseuuid, grade, instuuid, termyear, comment);
@@ -340,12 +369,12 @@ public class EntryPoint {
 	};
 
 	public static Route loadDB = (Request req, Response resp) -> {
-		addStudents("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/students.csv");
-		addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/instructors.csv");
-		addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/courses.csv");
-		addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/terms.csv");
-		addpreReqs("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/prereqs.csv");
-		addEligibleCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case1/eligible.csv");
+		addStudents("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/students.csv");
+		addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/instructors.csv");
+		addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/courses.csv");
+		addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/terms.csv");
+		addpreReqs("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/prereqs.csv");
+		addEligibleCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/eligible.csv");
 		HashMap<String, String> model = new HashMap<>();
 		model.put("name", "test");
 		return strictVelocityEngine().render(new ModelAndView(model, "helloworld.vm"));
