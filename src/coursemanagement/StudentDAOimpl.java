@@ -109,26 +109,26 @@ public class StudentDAOimpl implements StudentDAO {
 
 	}
 	
-	public  int requestCourse(int studid,int cid,String term){
+	public  String requestCourse(int studid,int cid,String term){
 		
 		boolean isCourseOffered = new termDAOImpl().isCourseTaughtInTheTerm(cid, term);
 		if(!isCourseOffered)
-			return 0;
+			return "Course is not offered this sem";
 		boolean alreadyCompletedSuccessfully = checkifCourseAlreadyCompletedSuccessfully(studid,cid);
 		if(alreadyCompletedSuccessfully)
-			return 1;
+			return "Course is already completed";
 		boolean isAlreadyEnrolled = checkifAlreadyEnrolled(studid,cid);
 		if(isAlreadyEnrolled)
-				return 2;
+				return "Already enrolled in this course";
 		boolean checkifPreRequsSatisifed = checkifPreReqsSatisifed(studid,cid);
 		if(!checkifPreRequsSatisifed)
-			return 3;
+			return "Please check prereqs, they are not yet satisfied";
 		boolean checkifEnrolled = checkifCanEnroll(cid,studid);
 		if(!checkifEnrolled)
-			return 4;
+			return "Failure to enroll, no availability ";
 		enrollStudent(studid,cid);
 		
-		return 5;
+		return "Success, enrolled for the course";
 	}
 	
 	

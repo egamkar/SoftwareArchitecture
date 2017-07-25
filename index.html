@@ -229,7 +229,8 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
     
     /* View Courses */
     $scope.sViewCourses = function() {
-        $http({method : "GET", url : "/getCourses"})
+        $url = "/getCourses/"+document.getElementById("login_id").value;
+        $http({method : "GET", url : $url})
             .then(function mySuccess(response) {
                 var records = response.data;
                 var tbl  = "<h3>Courses</h3>";

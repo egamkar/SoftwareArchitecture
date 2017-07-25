@@ -21,8 +21,9 @@ import org.apache.velocity.*;
 import org.apache.velocity.app.VelocityEngine;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 
 class CMSFileReader {
 	public String readFile(String fileName) {
@@ -102,7 +103,7 @@ public class EntryPoint {
 		get("/requestCourse/:id/:cid",(req,resp)->{
 			
 			StudentDAOimpl stud = new StudentDAOimpl();
-			int returnVal = stud.requestCourse(Integer.parseInt(req.params(":id")), Integer.parseInt(req.params(":cid")), semesters[semIndex]);
+			String returnVal = stud.requestCourse(Integer.parseInt(req.params(":id")), Integer.parseInt(req.params(":cid")), semesters[semIndex]);
 			return "Return value is"+ returnVal;
 			
 		});
@@ -119,13 +120,31 @@ public class EntryPoint {
         });
 
 	        /* ===== Course Handlers ===== */
-        get("/getCourses", (req, res) -> {
+        get("/getCourses/:id", (req, res) -> {
             // TODO: Get a list of courses in the following format
             String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\"}," +
                     "{\"id\":\"23\",\"desc\":\"Computer Networks\"}," +
                     "{\"id\":\"24\",\"desc\":\"Computer Architecture\"}]";
-            return test_data;
-        });
+            
+        	int studId = Integer.parseInt(req.params(":id"));
+        	String query = "select uuid AS id, name AS desc1 from course where uuid IN (select courseuuid from academicRecord where studentuuid=?)";
+    		DBConnection conn = new DBConnection();
+    		ArrayList<tempClassHolder> templist = new ArrayList<>();
+        	try {
+    			PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+    			preparedStmt.setInt(1, studId);
+    			ResultSet rs = preparedStmt.executeQuery();
+    			while(rs.next()){
+    				tempClassHolder temp = new tempClassHolder(rs.getInt("id"),rs.getString("desc1"));
+    				templist.add(temp);
+    			}
+    		} catch (SQLException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+            String json = new Gson().toJson(templist);
+            return json;
+      });
 
 	        /* ===== Admin Handlers ===== */
         get("/loginAdmin/:id", (req, res) -> {
@@ -236,22 +255,40 @@ public class EntryPoint {
 		});
 
 		post("/registerCourse", (req, res) -> {
-			// TODO:
-			// NOTE:  example: req.body() will return {"sid":"1","cid":"22"}
-			System.out.println(req.body());
-			return "Course Registerd";
+			
+			Map<String, String> map = new JsonUtil().parse(req.body());
+			StudentDAOimpl stud = new StudentDAOimpl();
+			String returnVal = stud.requestCourse(Integer.parseInt(map.get("sid")),Integer.parseInt(map.get("cid")), semesters[semIndex]);
+			return "Register course action result: "+ returnVal;
+           
 		});
         post("/viewGrades", (req, res) -> {
-            // TODO:
-            String test_data = "[{\"term\":\"Fall-2017\",\"instructor\":\"Mark Moss\",\"grade\":\"F\",\"comment\":\"Does not understand concepts\"}," +
-                    "{\"term\":\"Spring-2018\",\"instructor\":\"Mark Moss\",\"grade\":\"D\",\"comment\":\"More work needed\"}," +
-                    "{\"term\":\"Fall-2018\",\"instructor\":\"Mark Moss\",\"grade\":\"A\",\"comment\":\"Good Job\"}]";
-            return test_data;
-        });
+        	Map<String, String> map = new JsonUtil().parse(req.body());
+        	int studId = Integer.parseInt(map.get("sid"));
+        	int courseId = Integer.parseInt(map.get("cid"));
+        	String query = "Select termyear AS term, instuuid AS instructor, grade, comment from academicRecord where studentuuid=? AND courseuuid=?";
+    		DBConnection conn = new DBConnection();
+    		ArrayList<tempClassHolder> templist = new ArrayList<>();
+        	try {
+    			PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+    			preparedStmt.setInt(1, studId);
+    			preparedStmt.setInt(2, courseId);
+    			ResultSet rs = preparedStmt.executeQuery();
+    			while(rs.next()){
+    				String comment = rs.getString("comment");
+    				comment = (comment == null) ?"No comment yet":comment;
+					tempClassHolder temp = new tempClassHolder(rs.getString("term"),rs.getInt("instructor"),rs.getString("grade"),comment);
+    				templist.add(temp);
+    			}
+    		} catch (SQLException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+            String json = new Gson().toJson(templist);
+            return json;
+      });
         get("/reportWeka", (req, res) -> {
-            // TODO: Convert to JSON
-
-            System.out.println("Weka Report");
+                  System.out.println("Weka Report");
             return "Success";
         });
 
@@ -556,6 +593,30 @@ public class EntryPoint {
 		
 		
 	}
+	
+	 private static class tempClassHolder{
+     	int instructor;
+     	String term;
+     	String grade;
+     	String comment;
+     	int id;
+     	String desc;
+     	
+     	public tempClassHolder(String term, int instructor, String grade,String comment){
+     		this.instructor = instructor;
+     		this.comment = comment;
+     		this.grade = grade;
+     		this.term = term;
+     	}
+     	public tempClassHolder(int id,String desc){
+     		this.id= id;
+     		this.desc=desc;
+     	}
+     	
+     	
+     	
+     }
+     
 
 
 }
