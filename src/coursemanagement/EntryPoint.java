@@ -297,10 +297,10 @@ public class EntryPoint {
 
         get("/wekaAnalysis", (req, res) -> {
         	
-        	String weka_test_classification_data = "{\"group_1\":[1,2,3,4,5,6], \"group_2\": [6,8,9,10], \"group_3\": [44,55,64,11], \"group_4\":[101,13,22,56] }";
-    //        weka.runClassification(weka.queryWeka(""));
+//        	String weka_test_classification_data = "{\"group_1\":[1,2,3,4,5,6], \"group_2\": [6,8,9,10], \"group_3\": [44,55,64,11], \"group_4\":[101,13,22,56] }";
+            HashMap<Integer, ArrayList<Integer>> data = weka.runClassification(weka.queryWeka("select * from student"));
             System.out.println("Weka Report");
-            return weka_test_classification_data;
+            return new Gson().toJson(data);
         });
 
 
