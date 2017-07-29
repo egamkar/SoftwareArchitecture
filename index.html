@@ -61,7 +61,8 @@
             <button ng-click="aLeaveInstructor()">Leave Instructor</button> | 
             <button ng-click="aStartTerm()">Start Term</button> | 
             <button ng-click="aAdvanceTerm()">Advance Term</button> | 
-            <button ng-click="aWekaReport()">Display Weka Report</button>
+            <button ng-click="aWekaReport()">Display Weka Report</button> | 
+            <button ng-click="aWekaAnalysis()">Display Weka Student Report</button>
         </div>
         <hr>
     </div>
@@ -229,7 +230,7 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
     
     /* View Courses */
     $scope.sViewCourses = function() {
-        $url = "/getCourses/"+document.getElementById("login_id").value;
+        $url = "/getCourses/" + document.getElementById("login_id").value;
         $http({method : "GET", url : $url})
             .then(function mySuccess(response) {
                 var records = response.data;
@@ -570,6 +571,58 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         }, function(){
             document.getElementById('message_this').innerHTML = response.statusText;
         });
+    };
+
+    /* Weka Summary Report */
+    $scope.aWekaReport = function() {
+        $url = "/wekaReport/" + document.getElementById("login_id").value;
+        $http({method : "GET", url : $url})
+            .then(function mySuccess(response) {
+                var record = response.data;
+                var tbl  = "<h3>Weka Report</h3>";
+                tbl = tbl + "<table>";
+                tbl = tbl + "<tr><td>Total Number of Students</td><td>Course with most Students</td>" + 
+                    "<td>Total Number of Courses Offered</td></tr>";
+                tbl = tbl + "<tr><td>" + record["total_number_of_students"] + "</td><td>" +
+                    record["course_with_the_most_students"] + "</td><td>" + 
+                    record["Total_number_of_courses_offered"] + "</td></tr>";
+                tbl = tbl + "</table>";
+
+                var temp = $compile(tbl)($scope);
+                document.getElementById('action_section').innerHTML = "";
+                angular.element(document.getElementById('action_section')).append(temp);
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});    
+    };
+
+    /* Weka Student Report */
+    $scope.aWekaAnalysis = function() {
+        $url = "/wekaAnalysis/" + document.getElementById("login_id").value;
+        $http({method : "GET", url : $url})
+            .then(function mySuccess(response) {
+                var records = response.data;
+                console.log(response.data);
+                var tbl  = "<h3>Weak Analysis</h3>";
+                /*
+                tbl = tbl + "<table>";
+                for (x in records) {
+                    tbl = tbl + "<tr><td>Group " + x + "</td>";
+                    var row_data = records[x];
+
+                    tbl = tbl + "<td>" + records[x].id + "</td>" +
+                        "<td>" + records[x].desc + "</td></tr>";
+                }
+                tbl = tbl + "</table>";
+                */
+                var temp = $compile(tbl)($scope);
+                document.getElementById('action_section').innerHTML = "";
+                angular.element(document.getElementById('action_section')).append(temp);
+            }, function myError(response) {
+                                alert("Hi");
+
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});    
     };
 
     /* ===== App init =====*/

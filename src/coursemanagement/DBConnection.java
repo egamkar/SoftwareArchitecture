@@ -12,7 +12,7 @@ public class DBConnection {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/softwareArch", "root",
-					"password");
+					"cs6310");
 			return conn;
 
 		} catch (Exception e) {
