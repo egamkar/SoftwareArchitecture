@@ -195,6 +195,20 @@ public class EntryPoint {
 
             return test_data;
         });
+        get("/getInstructorDetails/:cid", (req, res) -> {
+            // TODO: Get Course Details for cid
+            System.out.println("Get Instructor Details");
+            String test_data = "{\"name\":\"Don Nelson\",\"addr\":\"my address\",\"phone\":\"503-111-2345\"}";
+
+            return test_data;
+        });
+        post("/editInstructorDetails", (req, res) -> {
+            // TODO: Get Course Details for cid
+            System.out.println("editInstructorDetails");
+            System.out.println(req.body());
+
+            return "Instructor Edited";
+        });
         get("/showAllStudents", (req, res) -> {
             // TODO: Show All Courses
             System.out.println("Show All Students");
@@ -227,6 +241,20 @@ public class EntryPoint {
         	 Map<String, String> map = new JsonUtil().parse(req.body());
         	 new StudentDAOimpl().insertStudentInfo(map.get("name"), map.get("address"), map.get("phoneNo"));
         	 return "Add Student Successful";
+        });
+        get("/getStudentDetails/:cid", (req, res) -> {
+            // TODO: Get Course Details for cid
+            System.out.println("Get Student Details");
+            String test_data = "{\"name\":\"Don Nelson\",\"addr\":\"my address\",\"phone\":\"503-111-2345\"}";
+
+            return test_data;
+        });
+        post("/editStudentDetails", (req, res) -> {
+            // TODO: Get Course Details for cid
+            System.out.println("editStudentDetails");
+            System.out.println(req.body());
+
+            return "Student Edited";
         });
         post("/hireInstructor", (req, res) -> {
             // TODO:
