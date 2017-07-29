@@ -45,7 +45,7 @@ class CMSFileReader {
 class JsonUtil {
     public static Map<String, String> parse(String object) {
         return new Gson().fromJson(object, Map.class);
-        
+
     }
 }
 
@@ -87,26 +87,26 @@ public class EntryPoint {
 			return "Name:" + inst.returnInstructorInfo(Integer.parseInt(req.params(":id"))).name;
 
 		});
-		
+
 		/*get("/teachCourse/:id/:cid",(req,resp)->{
 			InstructorDAOimpl inst = new InstructorDAOimpl();
 			int instid = Integer.parseInt(req.params(":id"));
 			int courseid = Integer.parseInt(req.params(":cid"));
 			int result = inst.teachCourse(instid, courseid);
 			return "Result is:"+result;
-			
-			
+
+
 		});*/
-		
-		
+
+
 		get("/requestCourse/:id/:cid",(req,resp)->{
-			
+
 			StudentDAOimpl stud = new StudentDAOimpl();
 			String returnVal = stud.requestCourse(Integer.parseInt(req.params(":id")), Integer.parseInt(req.params(":cid")), semesters[semIndex]);
 			return "Return value is"+ returnVal;
-			
+
 		});
-		
+
 		 /* ===== Read index file ===== */
         coursemanagement.CMSFileReader cms = new coursemanagement.CMSFileReader();
 
@@ -124,7 +124,7 @@ public class EntryPoint {
             String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\"}," +
                     "{\"id\":\"23\",\"desc\":\"Computer Networks\"}," +
                     "{\"id\":\"24\",\"desc\":\"Computer Architecture\"}]";
-            
+
         	int studId = Integer.parseInt(req.params(":id"));
         	String query = "select uuid AS id, name AS desc1 from course where uuid IN (select courseuuid from academicRecord where studentuuid=?)";
     		DBConnection conn = new DBConnection();
@@ -236,7 +236,7 @@ public class EntryPoint {
         post("/addStudent", (req, res) -> {
             // TODO: Add a new Student to the database
             // NOTE:  example: req.body() will return {"name":"Rohit Pitke"}
-          
+
         	 Map<String, String> map = new JsonUtil().parse(req.body());
         	 new StudentDAOimpl().insertStudentInfo(map.get("name"), map.get("address"), map.get("phoneNo"));
         	 return "Add Student Successful";
@@ -260,19 +260,19 @@ public class EntryPoint {
             // NOTE:  example: req.body() will return {"id":"22"}
         	   Map<String, String> map = new JsonUtil().parse(req.body());
                System.out.println(map.get("id"));
-               
+
                InstructorDAOimpl inst = new InstructorDAOimpl();
    				boolean isSuccess = inst.hireInstructor(Integer.parseInt(map.get("id")));
    				return "Instructor hired successfully if ID is accurate";
    		});
-        
+
         post("/leaveInstructor", (req, res) -> {
         	  Map<String, String> map = new JsonUtil().parse(req.body());
               System.out.println(map.get("id"));
               InstructorDAOimpl inst = new InstructorDAOimpl();
  			  inst.leaveInstructor(Integer.parseInt(map.get("id")));
  			  return "Instructor left successfully if ID is accurate";
-           
+
         });
         post("/startTerm", (req, res) -> {
             // TODO:
@@ -292,6 +292,12 @@ public class EntryPoint {
                     "{\"id\":\"23\",\"desc\":\"Computer Networks\",\"prereq\":\"no\"}," +
                     "{\"id\":\"24\",\"desc\":\"Computer Architecture\",\"prereq\":\"no\"}]";
             return test_data;
+        });
+        post("/addPrerequisites", (req, res) -> {
+            // TODO:
+            System.out.println("Add Prerequisites called");
+            System.out.println(req.body());
+            return "Add Pre-requisites";
         });
         post("/setPrerequisites", (req, res) -> {
             // TODO:
@@ -315,7 +321,7 @@ public class EntryPoint {
 			String result = inst.teachCourse(instid, courseid);
 			return result;
        });
-        
+
 		post("/assignGrade", enterAcademicRecord);
 
         /* ===== Student Handlers ===== */
@@ -325,12 +331,12 @@ public class EntryPoint {
 		});
 
 		post("/registerCourse", (req, res) -> {
-			
+
 			Map<String, String> map = new JsonUtil().parse(req.body());
 			StudentDAOimpl stud = new StudentDAOimpl();
 			String returnVal = stud.requestCourse(Integer.parseInt(map.get("sid")),Integer.parseInt(map.get("cid")), semesters[semIndex]);
 			return "Register course action result: "+ returnVal;
-           
+
 		});
         post("/viewGrades", (req, res) -> {
         	Map<String, String> map = new JsonUtil().parse(req.body());
@@ -361,14 +367,14 @@ public class EntryPoint {
         	HashMap<String, String> dataSet = weka.summarizeData();
             return new Gson().toJson(dataSet);
         });
-        
+
         // Returns an empty JSON if clusters could not be calculated.
 
         get("/wekaAnalysis/:id", (req, res) -> {
-        	
+
             ArrayList<ArrayList<Integer>> data = weka.runClassification(weka.queryWeka("select * from student"));
             return new Gson().toJson(data);
-    
+
         });
 
         StudentDAO studdao = new StudentDAOimpl();
@@ -439,9 +445,9 @@ public class EntryPoint {
 
 	};
 	public static Route enterAcademicRecord = (Request req, Response resp) -> {
-		
-		
-		
+
+
+
     	Map<String, String> map = new JsonUtil().parse(req.body());
 
 		int studentuuid = Integer.parseInt(map.get("grsid"));
@@ -453,7 +459,7 @@ public class EntryPoint {
 		StudentDAO studdao = new StudentDAOimpl();
 		studdao.enterAcademicRecord(studentuuid, courseuuid, grade, instuuid, termyear, comment);
 		return "Grades are recorded";
-		
+
 	};
 
 	public static Route getStudentById = (Request req, Response resp) -> {
@@ -637,8 +643,8 @@ public class EntryPoint {
 		}
 
 	}
-	
-	
+
+
 	public static void setCurrentTermWithYear(){
 		DBConnection conn = new DBConnection();
 		String[] semesters = { "Fall", "Winter", "Spring", "Summer" };
@@ -651,7 +657,7 @@ public class EntryPoint {
 			while (rs.next()) {
 				semYear = rs.getInt("termyear");
 				semIndex = rs.getInt("semIndex");
-				
+
 				System.out.println("Updates are " + semYear + ", index" + semIndex);
 
 			}
@@ -660,11 +666,11 @@ public class EntryPoint {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
+
+
+
 	}
-	
+
 	 private static class tempClassHolder{
      	int instructor;
      	String term;
@@ -672,7 +678,7 @@ public class EntryPoint {
      	String comment;
      	int id;
      	String desc;
-     	
+
      	public tempClassHolder(String term, int instructor, String grade,String comment){
      		this.instructor = instructor;
      		this.comment = comment;
@@ -683,11 +689,11 @@ public class EntryPoint {
      		this.id= id;
      		this.desc=desc;
      	}
-     	
-     	
-     	
+
+
+
      }
-     
+
 
 
 }

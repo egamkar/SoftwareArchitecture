@@ -754,10 +754,36 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         document.getElementById('message_this').innerHTML = "";
         var x  = `<h3>Add Pre requisites</h3>
         	<form>Course Id: <input type="text" id="acId" required>
-            <button ng-click="aCallAddPrereqs(); return;">Get Courses</button></form>`;
+            Prereq Id: <input type="text" id="prId" required>
+            <button ng-click="aCallAddPrereqs(); return;">Add</button></form>`;
         var temp = $compile(x)($scope);
         angular.element(document.getElementById('action_section')).append(temp);
     };
+    $scope.aCallAddPrereqs = function() {
+        var req = { method: 'POST', url: '/addPrerequisites',
+            headers: { 'Content-Type':'json;' },
+            data: { 
+                cid: document.getElementById("acId").value,
+                prid: document.getElementById("prId").value
+            }
+        };
+        $http(req)
+        .then(function(response){
+            document.getElementById('message_this').innerHTML = response.data;
+        }, function(){
+            document.getElementById('message_this').innerHTML = response.statusText;
+        });
+    };
+	/* Add Prereqs 
+    $scope.aAddPrereqs = function() {
+        document.getElementById('action_section').innerHTML = "";
+        document.getElementById('message_this').innerHTML = "";
+        var x  = `<h3>Add Pre requisites</h3>
+        	<form>Course Id: <input type="text" id="acId" required>
+            <button ng-click="aCallAddPrereqs(); return;">Get Courses</button></form>`;
+        var temp = $compile(x)($scope);
+        angular.element(document.getElementById('action_section')).append(temp);
+    }; 
     $scope.aCallAddPrereqs = function() {
         var path = "/coursesForPrereqs/" + document.getElementById('acId').value;
         $http({method : "GET", url : path,headers: {'Content-Type':'application/json;'}})
@@ -790,7 +816,7 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
                 document.getElementById('message_this').innerHTML = response.statusText;
                 return;
             });
-    };
+    }; */
     $scope.aSetPrereqs = function() {
         var ids = document.getElementById("prData").value.slice(1, -1).split(",");
         var cid = ids[0];
