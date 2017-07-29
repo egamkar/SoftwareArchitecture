@@ -69,7 +69,7 @@ public class WekaOperator {
     
     public String queryTopCourse(){
     	DBConnection conn = new DBConnection();
-		String query1 = "select top 1 count(*), courseuuid from academicRecord group by courseuuid order by count desc";
+		String query1 = "select top 1 count(*) as count, courseuuid from academicRecord group by courseuuid order by count desc";
 		
 		String data = "";
 		try {
