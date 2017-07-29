@@ -191,6 +191,16 @@ public class EntryPoint {
 
             return test_data;
         });
+        get("/getPrerequisites/:cid", (req, res) -> {
+            // TODO: Show All Courses
+            System.out.println("Show All Pre-requisites");
+            String test_data = "[" +
+                    "{\"id\":\"22\",\"name\":\"Don Nelson\",\"addr\":\"22 Nerson Lane, San Jose CA 95122\",\"phone\":\"503-222-1234\"}," +
+                    "{\"id\":\"23\",\"name\":\"Ron Howard\",\"addr\":\"12 To Lane, Reno NV 81122\",\"phone\":\"213-222-1234\"}," +
+                    "{\"id\":\"24\",\"name\":\"Venky Ram\",\"addr\":\"1 Baba Ct, Tulsa OK 81022\",\"phone\":\"713-222-1234\"}]";
+
+            return test_data;
+        });
         post("/addInstructor", (req, res) -> {
             // TODO: Add a new Instructor to the database
             // NOTE:  example: req.body() will return {"name":"Mark Moss"}
