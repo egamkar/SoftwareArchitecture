@@ -288,46 +288,29 @@ public class EntryPoint {
             return json;
       });
         get("/wekaReport/:id", (req, res) -> {
-               
-            String weka_data_test = "{\"Number of Students\":10, \"Course with the most students Registered\": \"CS 255\" }";
-<<<<<<< HEAD
-        	weka.summarizeData(weka.queryWeka("select * from student"));
 
-			String test_data = "{\"total_number_of_students\":\"55\",\"course_with_the_most_students\":\"Computer Programming\",\"Total_number_of_courses_offered\":\"150\"}";
+            String weka_data_test = "{\"Number of Students\":10, \"Course with the most students Registered\": \"CS 255\" }";
+            weka.summarizeData(weka.queryWeka("select * from student"));
+
+            String test_data = "{\"total_number_of_students\":\"55\",\"course_with_the_most_students\":\"Computer Programming\",\"Total_number_of_courses_offered\":\"150\"}";
 
             return test_data;
         });
 
         get("/wekaAnalysis/:id", (req, res) -> {
         	
-//        	String weka_test_classification_data = "{\"group_1\":[1,2,3,4,5,6], \"group_2\": [6,8,9,10], \"group_3\": [44,55,64,11], \"group_4\":[101,13,22,56] }";
             HashMap<Integer, ArrayList<Integer>> data = weka.runClassification(weka.queryWeka("select * from student"));
             System.out.println("Weka Analysis");
             // return new Gson().toJson(data);
-            String test_data = "[[\"10\",\"12\",\"12\"],[\"11\",\"34\",\"11\"],[\"34\",\"33\",\"22\"],[\"11\",\"33\",\"55\"]]";
-=======
-        	weka.summarizeData(weka.queryWeka("select id, phoneno from student"));;
+            String test_data = "[[10,11,12],[13,21,23],[33,22,11],[55,23,12]]";
+
+        	// weka.summarizeData(weka.queryWeka("select id, phoneno from student"));;
      
-            return weka_data_test;
-        });
-        
-        // Returns an empty JSON if clusters could not be calculated.
-        get("/wekaAnalysis", (req, res) -> {
-        	
-            HashMap<Integer, ArrayList<Integer>> data = weka.runClassification(weka.queryWeka("select uuid, phoneno from student"));
-            System.out.println("Weka Report");
-            return new Gson().toJson(data);
-        });
->>>>>>> 02d507f26a32e1569c7b783e64340e10e6ce146e
-
             return test_data;
-
         });
-
-
 
         StudentDAO studdao = new StudentDAOimpl();
-	}
+	};
 
 	public static Route startSim = (Request req, Response resp) -> {
 
