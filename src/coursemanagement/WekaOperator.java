@@ -5,6 +5,8 @@ import weka.core.AttributeStats;
 import weka.core.Instances;
 import weka.experiment.InstanceQuery;
 import weka.experiment.Stats;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.AddCluster;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,16 +84,23 @@ public class WekaOperator {
     	}
 
         SimpleKMeans model = new SimpleKMeans();
+        
 
         model.setNumClusters(4);
-
+        model.setSeed(10);
+        model.setPreserveInstancesOrder(true);
         model.buildClusterer(data);
         
-        int[] rawData = model.getAssignments();
+//        AddCluster filter = new AddCluster();
+//        filter.setClusterer(model);
+//        filter.setInputFormat(data);
+//        Filter.useFilter(data, filter);
         
+        int[] rawData = model.getAssignments();
+
         for(int i =0; i < rawData.length; i++){
         	int id = (int) data.instance(i).value(0);
-        	dataset.get(id).add(rawData[i]);
+        	dataset.get(rawData[i]).add(id);
         }
         return dataset;
 

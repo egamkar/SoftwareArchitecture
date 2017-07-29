@@ -290,15 +290,15 @@ public class EntryPoint {
         get("/reportWeka", (req, res) -> {
                
             String weka_data_test = "{\"Number of Students\":10, \"Course with the most students Registered\": \"CS 255\" }";
-        	weka.summarizeData(weka.queryWeka("select * from student"));;
+        	weka.summarizeData(weka.queryWeka("select id, phoneno from student"));;
      
             return weka_data_test;
         });
-
+        
+        // Returns an empty JSON if clusters could not be calculated.
         get("/wekaAnalysis", (req, res) -> {
         	
-//        	String weka_test_classification_data = "{\"group_1\":[1,2,3,4,5,6], \"group_2\": [6,8,9,10], \"group_3\": [44,55,64,11], \"group_4\":[101,13,22,56] }";
-            HashMap<Integer, ArrayList<Integer>> data = weka.runClassification(weka.queryWeka("select * from student"));
+            HashMap<Integer, ArrayList<Integer>> data = weka.runClassification(weka.queryWeka("select uuid, phoneno from student"));
             System.out.println("Weka Report");
             return new Gson().toJson(data);
         });
@@ -409,12 +409,12 @@ public class EntryPoint {
 	};
 
 	public static Route loadDB = (Request req, Response resp) -> {
-		addStudents("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/students.csv");
-		addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/instructors.csv");
-		addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/courses.csv");
-		addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/terms.csv");
-		addpreReqs("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/prereqs.csv");
-		addEligibleCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/eligible.csv");
+		addStudents("/home/student/Downloads/students.csv");
+//		addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/instructors.csv");
+//		addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/courses.csv");
+//		addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/terms.csv");
+//		addpreReqs("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/prereqs.csv");
+//		addEligibleCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/eligible.csv");
 		HashMap<String, String> model = new HashMap<>();
 		model.put("name", "test");
 		return strictVelocityEngine().render(new ModelAndView(model, "helloworld.vm"));
