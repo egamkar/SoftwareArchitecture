@@ -163,34 +163,71 @@ public class EntryPoint {
             return "Add Course Successful";
         });
         get("/showAllCourses", (req, res) -> {
-            // TODO: Show All Courses
-            System.out.println("Show All Courses");
-            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\"}," +
+         	String query = "select uuid AS id,name AS desc1 from course";
+        		DBConnection conn = new DBConnection();
+        		ArrayList<tempClassHolder> templist = new ArrayList<>();
+        		try {
+        			PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+        			ResultSet rs = preparedStmt.executeQuery();
+        			while(rs.next()){
+        				tempClassHolder temp = new tempClassHolder(rs.getInt("id"),rs.getString("desc1"));
+        				templist.add(temp);
+        			
+        			}
+        		} catch (SQLException e) {
+        			// TODO Auto-generated catch block
+        			e.printStackTrace();
+        		}
+            String json = new Gson().toJson(templist);
+        /*    String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\"}," +
                     "{\"id\":\"23\",\"desc\":\"Computer Networks\"}," +
-                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\"}]";
+                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\"}]";*/
 
-            return test_data;
+            return json;
         });
         get("/showAllInstructors", (req, res) -> {
-            // TODO: Show All Courses
-            System.out.println("Show All Instructors");
-            String test_data = "[" +
-                    "{\"id\":\"22\",\"name\":\"Don Nelson\",\"addr\":\"22 Nerson Lane, San Jose CA 95122\",\"phone\":\"503-222-1234\"}," +
-                    "{\"id\":\"23\",\"name\":\"Ron Howard\",\"addr\":\"12 To Lane, Reno NV 81122\",\"phone\":\"213-222-1234\"}," +
-                    "{\"id\":\"24\",\"name\":\"Venky Ram\",\"addr\":\"1 Baba Ct, Tulsa OK 81022\",\"phone\":\"713-222-1234\"}]";
-
-            return test_data;
+        	String query = "select uuid AS id,name AS name, address AS addr, phoneno AS phone from instructor";
+    		DBConnection conn = new DBConnection();
+    		ArrayList<tempClassHolder> templist = new ArrayList<>();
+    		try {
+    			PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+    			ResultSet rs = preparedStmt.executeQuery();
+    			while(rs.next()){
+    				tempClassHolder temp = new tempClassHolder(rs.getInt("id"),rs.getString("name"),rs.getString("addr"),rs.getString("phone"));
+    				templist.add(temp);
+    			
+    			}
+    		} catch (SQLException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		 String json = new Gson().toJson(templist);
+    		 return json;
         });
+        
         get("/showAllStudents", (req, res) -> {
-            // TODO: Show All Courses
-            System.out.println("Show All Students");
-            String test_data = "[" +
-                    "{\"id\":\"22\",\"name\":\"Don Nelson\",\"addr\":\"22 Nerson Lane, San Jose CA 95122\",\"phone\":\"503-222-1234\"}," +
-                    "{\"id\":\"23\",\"name\":\"Ron Howard\",\"addr\":\"12 To Lane, Reno NV 81122\",\"phone\":\"213-222-1234\"}," +
-                    "{\"id\":\"24\",\"name\":\"Venky Ram\",\"addr\":\"1 Baba Ct, Tulsa OK 81022\",\"phone\":\"713-222-1234\"}]";
-
-            return test_data;
+        	String query = "select uuid AS id,name AS name, address AS addr, phoneno AS phone from student";
+    		DBConnection conn = new DBConnection();
+    		ArrayList<tempClassHolder> templist = new ArrayList<>();
+    		try {
+    			PreparedStatement preparedStmt = conn.dbConnection().prepareStatement(query);
+    			ResultSet rs = preparedStmt.executeQuery();
+    			while(rs.next()){
+    				tempClassHolder temp = new tempClassHolder(rs.getInt("id"),rs.getString("name"),rs.getString("addr"),rs.getString("phone"));
+    				templist.add(temp);
+    			
+    			}
+    		} catch (SQLException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		 String json = new Gson().toJson(templist);
+    		 return json;
+    		
+    		
         });
+        
+        
         post("/addInstructor", (req, res) -> {
         	 Map<String, String> map = new JsonUtil().parse(req.body());
         	 new InstructorDAOimpl().insertInstructorInfo(map.get("name"), map.get("address"), map.get("phoneNo"));
@@ -396,10 +433,7 @@ public class EntryPoint {
 
 	};
 	public static Route enterAcademicRecord = (Request req, Response resp) -> {
-		
-		
-		
-    	Map<String, String> map = new JsonUtil().parse(req.body());
+   	Map<String, String> map = new JsonUtil().parse(req.body());
 
 		int studentuuid = Integer.parseInt(map.get("grsid"));
 		int instuuid = Integer.parseInt(map.get("iid"));
@@ -617,9 +651,6 @@ public class EntryPoint {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
 	}
 	
 	 private static class tempClassHolder{
@@ -629,7 +660,9 @@ public class EntryPoint {
      	String comment;
      	int id;
      	String desc;
-     	
+     	String name;
+     	String addr;
+     	String phone;
      	public tempClassHolder(String term, int instructor, String grade,String comment){
      		this.instructor = instructor;
      		this.comment = comment;
@@ -640,11 +673,11 @@ public class EntryPoint {
      		this.id= id;
      		this.desc=desc;
      	}
-     	
-     	
-     	
-     }
-     
-
-
-}
+    	public tempClassHolder(int id,String name,String address,String phoneNo){
+     		this.id= id;
+     		this.name = name;
+     		this.addr= address;
+     		this.phone = phoneNo;
+     	}
+       }
+ }
