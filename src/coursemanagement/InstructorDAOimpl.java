@@ -13,7 +13,8 @@ public class InstructorDAOimpl implements InstructorDAO {
 	private static final String alreadyTeaching = "Select count(*) AS rowcount from teachingRecord where instuuid=? AND termyear=?";
 	private static final String updateTeachingRecord = "INSERT into teachingRecord values(?,?)";
 	private static final String updateCourseSelection = "INSERT INTO courseselection values(?,?,?,?)";
-	
+	private static final String insertInstructor = "insert into instructor(uuid,name,address,phoneno) select MAX(uuid)+1,?,?,? FROM instructor";
+
 	
 	@Override
 	public Instructor returnInstructorInfo(int uuid) {
@@ -36,8 +37,18 @@ public class InstructorDAOimpl implements InstructorDAO {
 	}
 
 	@Override
-	public void insertInstructorInfo(Instructor inst) {
-		// TODO Auto-generated method stub
+	public void insertInstructorInfo(String name, String address, String phoneNo) {
+		DBConnection conn = new DBConnection();
+		try {
+			PreparedStatement stmt = conn.dbConnection().prepareStatement(insertInstructor);
+			stmt.setString(1, name);
+			stmt.setString(2, address);
+			stmt.setString(3, phoneNo);
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
@@ -71,7 +82,7 @@ public class InstructorDAOimpl implements InstructorDAO {
 		}
 	}
 	
-	public int teachCourse(int uuid, int cid){
+	public String teachCourse(int uuid, int cid){
 		
 		DBConnection conn = new DBConnection();
 		try {
@@ -80,15 +91,15 @@ public class InstructorDAOimpl implements InstructorDAO {
 			ResultSet rs = stmt.executeQuery();
 			while(rs.next()){
 				if(rs.getString("state").equals("INACTIVE"))
-					return 0;
+					return "Error, instructor is not hired first";
 				else if(!checkIfEligible(uuid,cid))
-					return 1;
+					return "Error, instructor is not eligible to teach this course";
 				else if(alreadyTeachingCourse(uuid,cid))
-					return 2;
+					return "Error, instructor is already teaching different course this sem";
 				else{
 					createTeachingRecord(uuid,cid);
 					updateCourseSelection(uuid,cid);
-					return 3;
+					return "Success, instructor is enrolled for teaching";
 				}
 				
 			}
@@ -97,12 +108,12 @@ public class InstructorDAOimpl implements InstructorDAO {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return -1;
+			return "Sorry, can not process this operation due to unknown command";
 		}
 		
 		
 		
-		return -1;
+		return "Sorry, can not process this operation due to unknown command";
 	}
 	
 	
