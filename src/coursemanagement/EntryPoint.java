@@ -153,6 +153,7 @@ public class EntryPoint {
         });
         get("/loadData/:path", (req, res) -> {
             // TODO: Load data here
+            System.out.println("Load Data");
             return "Data Import Successful";
         });
         post("/addCourse", (req, res) -> {
@@ -160,6 +161,35 @@ public class EntryPoint {
             // NOTE:  example: req.body() will return {"desc":"Computer Programming"}
             System.out.println(req.body());
             return "Add Course Successful";
+        });
+        get("/showAllCourses", (req, res) -> {
+            // TODO: Show All Courses
+            System.out.println("Show All Courses");
+            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\"}," +
+                    "{\"id\":\"23\",\"desc\":\"Computer Networks\"}," +
+                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\"}]";
+
+            return test_data;
+        });
+        get("/showAllInstructors", (req, res) -> {
+            // TODO: Show All Courses
+            System.out.println("Show All Instructors");
+            String test_data = "[" +
+                    "{\"id\":\"22\",\"name\":\"Don Nelson\",\"addr\":\"22 Nerson Lane, San Jose CA 95122\",\"phone\":\"503-222-1234\"}," +
+                    "{\"id\":\"23\",\"name\":\"Ron Howard\",\"addr\":\"12 To Lane, Reno NV 81122\",\"phone\":\"213-222-1234\"}," +
+                    "{\"id\":\"24\",\"name\":\"Venky Ram\",\"addr\":\"1 Baba Ct, Tulsa OK 81022\",\"phone\":\"713-222-1234\"}]";
+
+            return test_data;
+        });
+        get("/showAllStudents", (req, res) -> {
+            // TODO: Show All Courses
+            System.out.println("Show All Students");
+            String test_data = "[" +
+                    "{\"id\":\"22\",\"name\":\"Don Nelson\",\"addr\":\"22 Nerson Lane, San Jose CA 95122\",\"phone\":\"503-222-1234\"}," +
+                    "{\"id\":\"23\",\"name\":\"Ron Howard\",\"addr\":\"12 To Lane, Reno NV 81122\",\"phone\":\"213-222-1234\"}," +
+                    "{\"id\":\"24\",\"name\":\"Venky Ram\",\"addr\":\"1 Baba Ct, Tulsa OK 81022\",\"phone\":\"713-222-1234\"}]";
+
+            return test_data;
         });
         post("/addInstructor", (req, res) -> {
             // TODO: Add a new Instructor to the database

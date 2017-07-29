@@ -52,14 +52,17 @@
     <div id="admin_view">
         <div>
             <h3>Select Action</h3>
-            <button ng-click="aLoadData()">Load Data</button> | 
+            <button ng-click="aLoadData()">Load Data</button><br>
             <button ng-click="aAddCourse()">Add Course</button> | 
+            <button ng-click="aShowAllCourses()">Show Courses</button> | 
             <button ng-click="aAddPrereqs()">Add Pre-requisites</button> | 
+            <button ng-click="aShowPrereqs()">Show Pre-requisites</button><br>
             <button ng-click="aAddStudent()">Add Student</button> | 
+            <button ng-click="aShowAllStudents()">Show Students</button><br>
             <button ng-click="aAddInstructor()">Add Instructor</button> | 
+            <button ng-click="aShowAllInstructors()">Show Instructors</button> | 
             <button ng-click="aHireInstructor()">Hire Instructor</button> | 
-            <button ng-click="aLeaveInstructor()">Leave Instructor</button> | 
-            <button ng-click="aStartTerm()">Start Term</button> | 
+            <button ng-click="aLeaveInstructor()">Leave Instructor</button><br>
             <button ng-click="aAdvanceTerm()">Advance Term</button> | 
             <button ng-click="aWekaReport()">Display Weka Report</button> | 
             <button ng-click="aWekaAnalysis()">Display Weka Student Report</button>
@@ -350,6 +353,31 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
             });
     };
     
+    /* Show Courses */
+    $scope.aShowAllCourses = function() {
+        $http({method : "GET", url : "/showAllCourses"})
+            .then(function mySuccess(response) {
+                var records = response.data;
+                console.log(response.data);
+                var tbl  = "<h3>Show all Courses</h3>";
+                    
+                tbl = tbl + "<table>";
+                tbl = tbl + "<tr><th>Id</th><th>Description</th></tr>";
+
+                for (x in records) {
+                    tbl = tbl + "<tr><td>" + records[x].id + "</td>";
+                    tbl = tbl + "<td>" + records[x].desc + "</td></tr>";
+                }
+                tbl = tbl + "</table>";
+                
+                var temp = $compile(tbl)($scope);
+                document.getElementById('action_section').innerHTML = "";
+                angular.element(document.getElementById('action_section')).append(temp);                
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});
+    };
+
 	/* Add Instructor */
     $scope.aAddInstructor = function() {
         document.getElementById('action_section').innerHTML = "";
@@ -379,7 +407,35 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
             document.getElementById('message_this').innerHTML = response.statusText;
         });
     };
-   
+
+    /* Show ALL Instructors */
+    $scope.aShowAllInstructors = function() {
+        $http({method : "GET", url : "/showAllInstructors"})
+            .then(function mySuccess(response) {
+                var records = response.data;
+                console.log(response.data);
+                var tbl  = "<h3>Show all Instructors</h3>";
+                    
+                tbl = tbl + "<table>";
+                tbl = tbl + "<tr><th>Id</th><th>Name</th><th>Address</th><th>Phone</th></tr>";
+                for (x in records) {
+                    tbl = tbl + "<tr>";
+                    tbl = tbl + "<td>" + records[x].id + "</td>";
+                    tbl = tbl + "<td>" + records[x].name + "</td>";
+                    tbl = tbl + "<td>" + records[x].addr + "</td>";
+                    tbl = tbl + "<td>" + records[x].phone + "</td>";
+                    tbl = tbl + "</tr>";
+                }
+                tbl = tbl + "</table>";
+                
+                var temp = $compile(tbl)($scope);
+                document.getElementById('action_section').innerHTML = "";
+                angular.element(document.getElementById('action_section')).append(temp);                
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});
+    };
+
 	/* Add Student */
     $scope.aAddStudent = function() {
         document.getElementById('action_section').innerHTML = "";
@@ -405,6 +461,34 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         });
     };
     
+    /* Show ALL Students */
+    $scope.aShowAllStudents = function() {
+        $http({method : "GET", url : "/showAllStudents"})
+            .then(function mySuccess(response) {
+                var records = response.data;
+                console.log(response.data);
+                var tbl  = "<h3>Show all Students</h3>";
+                    
+                tbl = tbl + "<table>";
+                tbl = tbl + "<tr><th>Id</th><th>Name</th><th>Address</th><th>Phone</th></tr>";
+                for (x in records) {
+                    tbl = tbl + "<tr>";
+                    tbl = tbl + "<td>" + records[x].id + "</td>";
+                    tbl = tbl + "<td>" + records[x].name + "</td>";
+                    tbl = tbl + "<td>" + records[x].addr + "</td>";
+                    tbl = tbl + "<td>" + records[x].phone + "</td>";
+                    tbl = tbl + "</tr>";
+                }
+                tbl = tbl + "</table>";
+                
+                var temp = $compile(tbl)($scope);
+                document.getElementById('action_section').innerHTML = "";
+                angular.element(document.getElementById('action_section')).append(temp);                
+            }, function myError(response) {
+            	document.getElementById('message_this').innerHTML = response.statusText;
+        	});
+    };
+
 	/* Hire Instructor */
     $scope.aHireInstructor = function() {
         document.getElementById('action_section').innerHTML = "";
@@ -620,8 +704,6 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
                 document.getElementById('action_section').innerHTML = "";
                 angular.element(document.getElementById('action_section')).append(temp);
             }, function myError(response) {
-                                alert(response);
-
             	document.getElementById('message_this').innerHTML = response.statusText;
         	});    
     };
