@@ -1,7 +1,6 @@
 package coursemanagement;
 
 import static spark.Spark.*;
-
 import spark.*;
 import spark.template.velocity.VelocityTemplateEngine;
 
@@ -359,25 +358,17 @@ public class EntryPoint {
             return json;
       });
         get("/wekaReport/:id", (req, res) -> {
-
-            String weka_data_test = "{\"Number of Students\":10, \"Course with the most students Registered\": \"CS 255\" }";
-            weka.summarizeData(weka.queryWeka("select * from student"));
-
-            String test_data = "{\"total_number_of_students\":\"55\",\"course_with_the_most_students\":\"Computer Programming\",\"Total_number_of_courses_offered\":\"150\"}";
-
-            return test_data;
+        	HashMap<String, String> dataSet = weka.summarizeData();
+            return new Gson().toJson(dataSet);
         });
+        
+        // Returns an empty JSON if clusters could not be calculated.
 
         get("/wekaAnalysis/:id", (req, res) -> {
         	
-            HashMap<Integer, ArrayList<Integer>> data = weka.runClassification(weka.queryWeka("select * from student"));
-            System.out.println("Weka Analysis");
-            // return new Gson().toJson(data);
-            String test_data = "[[10,11,12],[13,21,23],[33,22,11],[55,23,12]]";
-
-        	// weka.summarizeData(weka.queryWeka("select id, phoneno from student"));;
-     
-            return test_data;
+            ArrayList<ArrayList<Integer>> data = weka.runClassification(weka.queryWeka("select * from student"));
+            return new Gson().toJson(data);
+    
         });
 
         StudentDAO studdao = new StudentDAOimpl();
