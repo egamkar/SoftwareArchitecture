@@ -89,7 +89,7 @@ public class EntryPoint {
 
 		});
 		
-		get("/teachCourse/:id/:cid",(req,resp)->{
+		/*get("/teachCourse/:id/:cid",(req,resp)->{
 			InstructorDAOimpl inst = new InstructorDAOimpl();
 			int instid = Integer.parseInt(req.params(":id"));
 			int courseid = Integer.parseInt(req.params(":cid"));
@@ -97,7 +97,7 @@ public class EntryPoint {
 			return "Result is:"+result;
 			
 			
-		});
+		});*/
 		
 		
 		get("/requestCourse/:id/:cid",(req,resp)->{
@@ -162,16 +162,17 @@ public class EntryPoint {
             return "Add Course Successful";
         });
         post("/addInstructor", (req, res) -> {
-            // TODO: Add a new Instructor to the database
-            // NOTE:  example: req.body() will return {"name":"Mark Moss"}
-            System.out.println(req.body());
+        	 Map<String, String> map = new JsonUtil().parse(req.body());
+        	 new InstructorDAOimpl().insertInstructorInfo(map.get("name"), map.get("address"), map.get("phoneNo"));
             return "Add Instructor Successful";
         });
         post("/addStudent", (req, res) -> {
             // TODO: Add a new Student to the database
             // NOTE:  example: req.body() will return {"name":"Rohit Pitke"}
-            System.out.println(req.body());
-            return "Add Student Successful";
+          
+        	 Map<String, String> map = new JsonUtil().parse(req.body());
+        	 new StudentDAOimpl().insertStudentInfo(map.get("name"), map.get("address"), map.get("phoneNo"));
+        	 return "Add Student Successful";
         });
         post("/hireInstructor", (req, res) -> {
             // TODO:
@@ -184,9 +185,6 @@ public class EntryPoint {
    				return "Instructor hired successfully if ID is accurate";
    		});
         
-
-
-    
         post("/leaveInstructor", (req, res) -> {
         	  Map<String, String> map = new JsonUtil().parse(req.body());
               System.out.println(map.get("id"));
@@ -201,11 +199,7 @@ public class EntryPoint {
             System.out.println(req.body());
             return "Term Started";
         });
-        get("/advanceTerm", (req, res) -> {
-            // TODO:
-            System.out.println("Advance Term");
-            return "Term Advanced";
-        });
+        get("/advanceTerm", nextTerm);
         get("/coursesForPrereqs/:courseid", (req, res) -> {
 	            /* TODO:  need a list of courses in the following format.
 	                - The list should not contain courseid
@@ -233,20 +227,15 @@ public class EntryPoint {
 		});
 
         post("/teachCourse", (req, res) -> {
-            // TODO:
-            // NOTE:  example: req.body() will return {"iid":"11","cid":"22"}
-            System.out.println("teachCourse called");
-            System.out.println(req.body());
-            return "Teach Course Successful";
-        });
-		post("/assignGrade", (req, res) -> {
-			// TODO:
-			// NOTE:  example: req.body() will return
-			// {"grcid":"1","grsid":"3","grterm":"Fall-2017","grade":"C","grcomment":"need to do more work"}
-			System.out.println("Assign Grade called");
-			System.out.println(req.body());
-			return "Grade Assigned";
-		});
+            InstructorDAOimpl inst = new InstructorDAOimpl();
+            Map<String, String> map = new JsonUtil().parse(req.body());
+			int instid = Integer.parseInt(map.get("iid"));
+			int courseid = Integer.parseInt(map.get("cid"));
+			String result = inst.teachCourse(instid, courseid);
+			return result;
+       });
+        
+		post("/assignGrade", enterAcademicRecord);
 
         /* ===== Student Handlers ===== */
 		get("/loginStudent/:id", (req, res) -> {
@@ -376,18 +365,21 @@ public class EntryPoint {
 
 	};
 	public static Route enterAcademicRecord = (Request req, Response resp) -> {
-		int studentuuid = Integer.parseInt(req.queryParams("studId"));
-		int instuuid = Integer.parseInt(req.queryParams("instID"));
-		int courseuuid = Integer.parseInt(req.queryParams("courseId"));
-		String grade = req.queryParams("grade");
+		
+		
+		
+    	Map<String, String> map = new JsonUtil().parse(req.body());
+
+		int studentuuid = Integer.parseInt(map.get("grsid"));
+		int instuuid = Integer.parseInt(map.get("iid"));
+		int courseuuid = Integer.parseInt(map.get("grcid"));
+		String grade = map.get("grade");
 		String termyear = semesters[semIndex]+semYear.toString();
-		String comment = req.queryParams("comment") != null ? req.queryParams("comment") : null;
+		String comment = map.get("grcomment") != null ? map.get("grcomment") : null;
 		StudentDAO studdao = new StudentDAOimpl();
 		studdao.enterAcademicRecord(studentuuid, courseuuid, grade, instuuid, termyear, comment);
-		HashMap<String, String> model = new HashMap<>();
-		model.put("name", "Entered");
-		return strictVelocityEngine().render(new ModelAndView(model, "student.vm"));
-
+		return "Grades are recorded";
+		
 	};
 
 	public static Route getStudentById = (Request req, Response resp) -> {

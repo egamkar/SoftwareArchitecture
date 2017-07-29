@@ -15,6 +15,8 @@ public class StudentDAOimpl implements StudentDAO {
 	private static final String allCoursesByStudent = "Select courseuuid from academicrecord where studentuuid=? AND (grade='A' OR grade ='B' OR grade='C')";
 	private static final String ifAlreadyEnrolled = "Select count(*) as rowcount from academicrecord where studentuuid=? AND courseuuid=? AND grade='NA'";
 	private static final String canbeEnrolled = "Select *  from courseselection where courseuuid=? AND seminfo=?";
+	private static final String insertStudent = "insert into student(uuid,name,address,phoneno) select MAX(uuid)+1,?,?,? FROM student";
+	
 	
 	@Override
 	public Student returnStudentInfo(int uuid) {
@@ -38,7 +40,18 @@ public class StudentDAOimpl implements StudentDAO {
 	}
 
 	@Override
-	public void insertStudentInfo(Student student) {
+	public void insertStudentInfo(String name, String address, String phoneNo) {
+		DBConnection conn = new DBConnection();
+		try {
+			PreparedStatement stmt = conn.dbConnection().prepareStatement(insertStudent);
+			stmt.setString(1, name);
+			stmt.setString(2, address);
+			stmt.setString(3, phoneNo);
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void enterAcademicRecord(Integer studId, Integer courseid, String grade, Integer instuuid, String termyear,

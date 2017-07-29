@@ -173,9 +173,9 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
             data: { 
                 grcid: document.getElementById("grcid").value,
                 grsid: document.getElementById("grsid").value,
-                grterm: document.getElementById("grterm").value,
                 grade: document.getElementById("grade").value,
-                grcomment: document.getElementById("grcomment").value
+                grcomment: document.getElementById("grcomment").value,
+                iid: document.getElementById("login_id").value
             }
         };
         console.log(req);
@@ -354,7 +354,9 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         document.getElementById('action_section').innerHTML = "";
         document.getElementById('message_this').innerHTML = "";
         var x  = `<h3>Add Instructor</h3>
-        	<form>Name: <input type="text" id="aName" required>
+        	<form>Name: <input type="text" id="aNameI" required>
+            Address: <input type="text" id="aAddressI" required>
+            PhoneNo: <input type="text" id="aPhoneNoI" required>
             <button ng-click="aCallAddInstructor(); return;">Add</button></form>`;
         var temp = $compile(x)($scope);
         angular.element(document.getElementById('action_section')).append(temp);
@@ -367,7 +369,10 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
                 'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;'
             },
             data: { 
-                name: document.getElementById("aName").value
+                name: document.getElementById("aNameI").value,
+                address: document.getElementById("aAddressI").value,
+                phoneNo: document.getElementById("aPhoneNoI").value
+
             }
         };
 
@@ -385,6 +390,8 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         document.getElementById('message_this').innerHTML = "";
         var x  = `<h3>Add Student</h3>
         	<form>Name: <input type="text" id="aName" required>
+            Address<input type="text" id="aAddress" required>
+            Phone No<input type="text" id="aPhoneNo" required>
             <button ng-click="aCallAddStudent(); return;">Add</button></form>`;
         var temp = $compile(x)($scope);
         angular.element(document.getElementById('action_section')).append(temp);
@@ -393,7 +400,9 @@ app.controller('cmsCtrl', function($scope, $compile, $http) {
         var req = { method: 'POST', url: '/addStudent',
             headers: { 'Content-Type':'application/x-www-form-urlencoded;charset=utf-8;' },
             data: { 
-                name: document.getElementById("aName").value
+                name: document.getElementById("aName").value,
+                address: document.getElementById("aAddress").value,
+                phoneNo: document.getElementById("aPhoneNo").value
             }
         };
         $http(req)

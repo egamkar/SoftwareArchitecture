@@ -6,10 +6,12 @@ public interface InstructorDAO {
 
 	public Instructor returnInstructorInfo(int uuid);
 
-	public void insertInstructorInfo(Instructor inst);
+	
 
 	public boolean hireInstructor(int uuid) throws SQLException;
 
 	public void leaveInstructor(int uuid);
+
+	void insertInstructorInfo(String name, String address, String phoneNo);
 
 }
