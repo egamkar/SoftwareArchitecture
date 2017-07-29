@@ -290,6 +290,7 @@ public class EntryPoint {
         get("/wekaReport/:id", (req, res) -> {
                
             String weka_data_test = "{\"Number of Students\":10, \"Course with the most students Registered\": \"CS 255\" }";
+<<<<<<< HEAD
         	weka.summarizeData(weka.queryWeka("select * from student"));
 
 			String test_data = "{\"total_number_of_students\":\"55\",\"course_with_the_most_students\":\"Computer Programming\",\"Total_number_of_courses_offered\":\"150\"}";
@@ -304,6 +305,20 @@ public class EntryPoint {
             System.out.println("Weka Analysis");
             // return new Gson().toJson(data);
             String test_data = "[[\"10\",\"12\",\"12\"],[\"11\",\"34\",\"11\"],[\"34\",\"33\",\"22\"],[\"11\",\"33\",\"55\"]]";
+=======
+        	weka.summarizeData(weka.queryWeka("select id, phoneno from student"));;
+     
+            return weka_data_test;
+        });
+        
+        // Returns an empty JSON if clusters could not be calculated.
+        get("/wekaAnalysis", (req, res) -> {
+        	
+            HashMap<Integer, ArrayList<Integer>> data = weka.runClassification(weka.queryWeka("select uuid, phoneno from student"));
+            System.out.println("Weka Report");
+            return new Gson().toJson(data);
+        });
+>>>>>>> 02d507f26a32e1569c7b783e64340e10e6ce146e
 
             return test_data;
 
@@ -412,7 +427,7 @@ public class EntryPoint {
 	};
 
 	public static Route loadDB = (Request req, Response resp) -> {
-		addStudents("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/students.csv");
+		addStudents("/home/student/Downloads/students.csv");
 		addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/instructors.csv");
 		addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/courses.csv");
 		addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/terms.csv");
