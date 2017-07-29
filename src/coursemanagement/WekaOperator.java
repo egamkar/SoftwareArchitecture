@@ -5,7 +5,10 @@ import weka.core.AttributeStats;
 import weka.core.Instances;
 import weka.experiment.InstanceQuery;
 import weka.experiment.Stats;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.AddCluster;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WekaOperator {
@@ -21,7 +24,7 @@ public class WekaOperator {
         query.setUsername("root");
         query.setPassword("cs6310");
         query.setQuery(rawQuery);
-
+        
         return query.retrieveInstances();
     }
 
@@ -64,19 +67,42 @@ public class WekaOperator {
     }
 
     /**
-     * Given source data, run a classification model
+     * Given source data, run a classification model and return a HashMap with Groups
      */
 
-    public int[] runClassification(Instances data) throws Exception{
+    public HashMap<Integer, ArrayList<Integer>> runClassification(Instances data) throws Exception{
+    	
+    	HashMap<Integer, ArrayList<Integer>> dataset = new HashMap<Integer, ArrayList<Integer>>();
+    	
+    	dataset.put(0, new ArrayList<Integer>());
+    	dataset.put(1, new ArrayList<Integer>());
+    	dataset.put(2, new ArrayList<Integer>());
+    	dataset.put(3, new ArrayList<Integer>());
+    	
+    	if(data.size() < 2){
+    		return dataset;
+    	}
 
         SimpleKMeans model = new SimpleKMeans();
+        
 
         model.setNumClusters(4);
-
+        model.setSeed(10);
+        model.setPreserveInstancesOrder(true);
         model.buildClusterer(data);
+        
+//        AddCluster filter = new AddCluster();
+//        filter.setClusterer(model);
+//        filter.setInputFormat(data);
+//        Filter.useFilter(data, filter);
+        
+        int[] rawData = model.getAssignments();
 
-        return model.getAssignments();
-
+        for(int i =0; i < rawData.length; i++){
+        	int id = (int) data.instance(i).value(0);
+        	dataset.get(rawData[i]).add(id);
+        }
+        return dataset;
 
     }
 

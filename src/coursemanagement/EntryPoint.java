@@ -153,6 +153,7 @@ public class EntryPoint {
         });
         get("/loadData/:path", (req, res) -> {
             // TODO: Load data here
+            System.out.println("Load Data");
             return "Data Import Successful";
         });
         post("/addCourse", (req, res) -> {
@@ -160,6 +161,35 @@ public class EntryPoint {
             // NOTE:  example: req.body() will return {"desc":"Computer Programming"}
             System.out.println(req.body());
             return "Add Course Successful";
+        });
+        get("/showAllCourses", (req, res) -> {
+            // TODO: Show All Courses
+            System.out.println("Show All Courses");
+            String test_data = "[{\"id\":\"22\",\"desc\":\"Computer Programming\"}," +
+                    "{\"id\":\"23\",\"desc\":\"Computer Networks\"}," +
+                    "{\"id\":\"24\",\"desc\":\"Computer Architecture\"}]";
+
+            return test_data;
+        });
+        get("/showAllInstructors", (req, res) -> {
+            // TODO: Show All Courses
+            System.out.println("Show All Instructors");
+            String test_data = "[" +
+                    "{\"id\":\"22\",\"name\":\"Don Nelson\",\"addr\":\"22 Nerson Lane, San Jose CA 95122\",\"phone\":\"503-222-1234\"}," +
+                    "{\"id\":\"23\",\"name\":\"Ron Howard\",\"addr\":\"12 To Lane, Reno NV 81122\",\"phone\":\"213-222-1234\"}," +
+                    "{\"id\":\"24\",\"name\":\"Venky Ram\",\"addr\":\"1 Baba Ct, Tulsa OK 81022\",\"phone\":\"713-222-1234\"}]";
+
+            return test_data;
+        });
+        get("/showAllStudents", (req, res) -> {
+            // TODO: Show All Courses
+            System.out.println("Show All Students");
+            String test_data = "[" +
+                    "{\"id\":\"22\",\"name\":\"Don Nelson\",\"addr\":\"22 Nerson Lane, San Jose CA 95122\",\"phone\":\"503-222-1234\"}," +
+                    "{\"id\":\"23\",\"name\":\"Ron Howard\",\"addr\":\"12 To Lane, Reno NV 81122\",\"phone\":\"213-222-1234\"}," +
+                    "{\"id\":\"24\",\"name\":\"Venky Ram\",\"addr\":\"1 Baba Ct, Tulsa OK 81022\",\"phone\":\"713-222-1234\"}]";
+
+            return test_data;
         });
         post("/addInstructor", (req, res) -> {
         	 Map<String, String> map = new JsonUtil().parse(req.body());
@@ -276,29 +306,30 @@ public class EntryPoint {
             String json = new Gson().toJson(templist);
             return json;
       });
-        get("/reportWeka", (req, res) -> {
-               
+        get("/wekaReport/:id", (req, res) -> {
+
             String weka_data_test = "{\"Number of Students\":10, \"Course with the most students Registered\": \"CS 255\" }";
-        	weka.summarizeData(weka.queryWeka("select * from student"));;
-     
-            return weka_data_test;
+            weka.summarizeData(weka.queryWeka("select * from student"));
+
+            String test_data = "{\"total_number_of_students\":\"55\",\"course_with_the_most_students\":\"Computer Programming\",\"Total_number_of_courses_offered\":\"150\"}";
+
+            return test_data;
         });
 
-        get("/wekaAnalysis", (req, res) -> {
+        get("/wekaAnalysis/:id", (req, res) -> {
         	
-        	String weka_test_classification_data = "{\"group_1\":[1,2,3,4,5,6], \"group_2\": [6,8,9,10], \"group_3\": [44,55,64,11], \"group_4\":[101,13,22,56] }";
-    //        weka.runClassification(weka.queryWeka(""));
-            System.out.println("Weka Report");
-            return weka_test_classification_data;
+            HashMap<Integer, ArrayList<Integer>> data = weka.runClassification(weka.queryWeka("select * from student"));
+            System.out.println("Weka Analysis");
+            // return new Gson().toJson(data);
+            String test_data = "[[10,11,12],[13,21,23],[33,22,11],[55,23,12]]";
+
+        	// weka.summarizeData(weka.queryWeka("select id, phoneno from student"));;
+     
+            return test_data;
         });
-
-
 
         StudentDAO studdao = new StudentDAOimpl();
-
-
-		
-	}
+	};
 
 	public static Route startSim = (Request req, Response resp) -> {
 
@@ -401,7 +432,7 @@ public class EntryPoint {
 	};
 
 	public static Route loadDB = (Request req, Response resp) -> {
-		addStudents("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/students.csv");
+		addStudents("/home/student/Downloads/students.csv");
 		addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/instructors.csv");
 		addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/courses.csv");
 		addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/terms.csv");
