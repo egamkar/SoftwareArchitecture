@@ -171,6 +171,20 @@ public class EntryPoint {
 
             return test_data;
         });
+        get("/getCourseDetails/:cid", (req, res) -> {
+            // TODO: Get Course Details for cid
+            System.out.println("Get Course Details");
+            String test_data = "{\"desc\":\"Computer Programming\"}";
+
+            return test_data;
+        });
+        post("/editCourseDetails", (req, res) -> {
+            // TODO: Get Course Details for cid
+            System.out.println("editCourseDetails");
+            System.out.println(req.body());
+
+            return "Course Edited";
+        });
         get("/showAllInstructors", (req, res) -> {
             // TODO: Show All Courses
             System.out.println("Show All Instructors");
