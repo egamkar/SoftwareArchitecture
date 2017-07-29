@@ -410,11 +410,11 @@ public class EntryPoint {
 
 	public static Route loadDB = (Request req, Response resp) -> {
 		addStudents("/home/student/Downloads/students.csv");
-//		addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/instructors.csv");
-//		addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/courses.csv");
-//		addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/terms.csv");
-//		addpreReqs("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/prereqs.csv");
-//		addEligibleCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/eligible.csv");
+		addInstructors("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/instructors.csv");
+		addCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/courses.csv");
+		addTermCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/terms.csv");
+		addpreReqs("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/prereqs.csv");
+		addEligibleCourses("/Users/rohitpitke/Desktop/SA/new test cases/test_case5/eligible.csv");
 		HashMap<String, String> model = new HashMap<>();
 		model.put("name", "test");
 		return strictVelocityEngine().render(new ModelAndView(model, "helloworld.vm"));
