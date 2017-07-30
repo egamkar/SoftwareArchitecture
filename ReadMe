@@ -1,0 +1,17 @@
+Run the .sql file (Assuming root/cs6310 mysql credentials)
+
+./mysql -u root -p < project.sql OR 
+mysql -u root -p < project.sql  (if mysql is added in your executable path)
+
+
+Run the JAR file
+
+java -jar working_system.jar 
+
+Browse to http://localhost:9000/
+
+To load the data, login as Admin (id:100) and click on load. Give the path of folder containing csv files of data
+(Warning: Doing this on existing data will result into overwriting existing DB without any backup. Use it cautiously. This similulates initial mode)
+
+
+
